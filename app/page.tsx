@@ -2,10 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Lock, Unlock, Sparkles, Volume2, VolumeX, Calendar, Ticket } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Lock, Unlock, Sparkles, Calendar, Ticket, Compass, Users, Radio } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import AboutSection from '@/components/about';
 
 interface TimeLeft {
@@ -42,22 +40,7 @@ const marqueeVariants: Variants = {
 export default function Home() {
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, mins: 0, secs: 0 });
   const [hasRegistered, setHasRegistered] = useState(false);
-  const [isMuted, setIsMuted] = useState(true);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [activeSpectrum, setActiveSpectrum] = useState<number | null>(null);
-  const bgVideoRef = React.useRef<HTMLVideoElement>(null);
-
-  const handleVolumeToggle = () => {
-    if (bgVideoRef.current) {
-      const newMuted = !bgVideoRef.current.muted;
-      bgVideoRef.current.muted = newMuted;
-      setIsMuted(newMuted);
-      if (typeof window !== 'undefined') {
-        const event = new CustomEvent('bg-video-mute-change', { detail: { isMuted: newMuted } });
-        window.dispatchEvent(event);
-      }
-    }
-  };
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -83,31 +66,11 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // Listen for audio toggle commands from the Navbar
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const handleToggleCommand = () => {
-        handleVolumeToggle();
-      };
-      window.addEventListener('toggle-bg-video-mute', handleToggleCommand);
-
-      // Initial synchronization on mount
-      setTimeout(() => {
-        const syncEvent = new CustomEvent('bg-video-mute-change', { detail: { isMuted: bgVideoRef.current?.muted ?? true } });
-        window.dispatchEvent(syncEvent);
-      }, 500);
-
-      return () => {
-        window.removeEventListener('toggle-bg-video-mute', handleToggleCommand);
-      };
-    }
-  }, []);
-
   const stickers = [
-    { text: "BOOM!", subtext: "⚡ BOLD & BEYOND", color: "bg-brand-pink text-brand-cloud", top: "15%", left: "6%", starburst: true, rotate: "-6deg" },
-    { text: "POW!", subtext: "📅 JULY 14-16", color: "bg-brand-orange text-brand-ink", top: "18%", right: "6%", starburst: true, rotate: "8deg" },
-    { text: "BANG!", subtext: "🚀 LIMITLESS", color: "bg-brand-blue text-brand-cloud", bottom: "16%", left: "8%", starburst: true, rotate: "-5deg" },
-    { text: "STAGE PASS", subtext: "🔥 FEARLESS", color: "bg-brand-cloud text-brand-ink border-4 border-brand-ink shadow-comic-sm", bottom: "14%", right: "8%", starburst: false, rotate: "6deg" },
+    { text: "ISSUE #26", color: "bg-brand-pink text-brand-cloud border-comic-thin shadow-comic-sm", top: "12%", left: "6%", rotate: "-8deg" },
+    { text: "JULY 14-16", color: "bg-brand-orange text-brand-ink font-extrabold border-comic-thin shadow-comic-sm", top: "15%", right: "8%", rotate: "6deg" },
+    { text: "KAPOW!", color: "bg-brand-blue text-brand-cloud", bottom: "25%", left: "8%", starburst: true, rotate: "-12deg" },
+    { text: "APPROVED", subtext: "BY THE SQUAD", color: "bg-brand-cloud text-brand-pink border-4 border-dashed border-brand-pink", bottom: "22%", right: "8%", stamp: true, rotate: "15deg" },
   ];
 
   const countdownBlocks = [
@@ -115,6 +78,37 @@ export default function Home() {
     { label: 'Hours', valueKey: 'hours', bg: 'bg-brand-pink text-brand-cloud', rotate: 'rotate-3' },
     { label: 'Mins', valueKey: 'mins', bg: 'bg-brand-blue text-brand-cloud', rotate: '-rotate-1' },
     { label: 'Secs', valueKey: 'secs', bg: 'bg-brand-cloud text-brand-ink', rotate: 'rotate-2' },
+  ];
+
+  const comicStoryPanels = [
+    {
+      title: "THE STAGE IS SET!",
+      category: "CULTURE",
+      color: "bg-brand-pink text-brand-cloud",
+      icon: <Radio className="w-8 h-8" />,
+      description: "GET READY FOR HIGH-ENERGY NIGHTS, LIVE BANDS, AND CULTURAL PERFORMANCES THAT WILL LEAVE YOU SPEECHLESS!",
+    },
+    {
+      title: "CODE & CREATE!",
+      category: "INNOVATION",
+      color: "bg-brand-blue text-brand-cloud",
+      icon: <Compass className="w-8 h-8" />,
+      description: "COLLABORATE IN INTENSE DESIGN SPRINTS AND HACKATHONS TO BUILD PRODUCTS THAT PUSH BEYOND LIMITS!",
+    },
+    {
+      title: "MEET THE SENIORS!",
+      category: "COMMUNITY",
+      color: "bg-brand-orange text-brand-ink",
+      icon: <Users className="w-8 h-8" />,
+      description: "CONNECT WITH MENTORS, DISCOVER INFLUENTIAL CLUBS, AND ESTABLISH YOUR CAMPUS ROADMAP!",
+    },
+    {
+      title: "CAMPUS SCAVENGER HUNT!",
+      category: "EXPLORE",
+      color: "bg-brand-cloud text-brand-ink",
+      icon: <Sparkles className="w-8 h-8 text-brand-pink" />,
+      description: "DECRYPT CLUES, NAVIGATE ROOMS, AND DOMINATE THE LARGEST CAMPUS TREASURE HUNT!",
+    }
   ];
 
   const spectrumPanels = [
@@ -155,35 +149,16 @@ export default function Home() {
       {/* Noise/Grain Overlay */}
       <div className="noise-overlay" />
 
-      {/* Hero Section */}
-      <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-28 px-4 overflow-hidden bg-brand-ink">
-        {/* Background Video */}
-        <div className="absolute inset-0 w-full h-full z-0 overflow-hidden pointer-events-none">
-          <video
-            ref={bgVideoRef}
-            autoPlay
-            loop
-            muted={isMuted}
-            playsInline
-            preload="auto"
-            onPlay={() => setIsVideoLoaded(true)}
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className="w-full h-full object-cover scale-100 will-change-transform transition-opacity duration-1000 ease-out"
-            style={{ 
-              filter: 'brightness(0.6) contrast(1.2) grayscale(0.2)', 
-              transform: 'translate3d(0, 0, 0)',
-              opacity: isVideoLoaded ? 1 : 0.1,
-              imageRendering: '-webkit-optimize-contrast'
-            }}
-          >
-            <source src="/teaser.mp4" type="video/mp4" />
-          </video>
-          {/* Stark Comic Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-ink via-transparent to-brand-ink/80 pointer-events-none" />
-          {/* Halftone shading overlays on background */}
-          <div className="absolute inset-0 bg-halftone-black opacity-20 pointer-events-none" />
-        </div>
-
+      {/* Fresh Comic Magazine Cover Hero (No Video) */}
+      <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-28 px-4 overflow-hidden bg-brand-cloud text-brand-ink">
+        
+        {/* Comic Pattern Backdrop */}
+        <div className="absolute inset-0 bg-halftone-black opacity-30 pointer-events-none" />
+        
+        {/* Abstract comic background shapes */}
+        <div className="absolute top-12 left-12 w-64 h-64 bg-brand-pink/15 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-20 right-20 w-[450px] h-[450px] bg-brand-orange/15 rounded-full blur-[100px] pointer-events-none" />
+        
         {/* Draggable Pop-Art Stickers */}
         <div className="hidden lg:block absolute inset-0 z-10 pointer-events-none">
           {stickers.map((sticker, idx) => (
@@ -208,12 +183,18 @@ export default function Home() {
                   <span className="font-display font-black text-xl leading-none uppercase tracking-tighter drop-shadow-md">
                     {sticker.text}
                   </span>
-                  <span className="text-[8px] font-bold tracking-wider mt-1 opacity-90 uppercase">
+                </div>
+              ) : sticker.stamp ? (
+                <div className={`w-28 h-28 rounded-full flex flex-col items-center justify-center text-center p-3 rotate-12 shadow-comic-sm bg-brand-cloud ${sticker.color}`}>
+                  <span className="font-display font-black text-xs leading-none uppercase tracking-tighter">
+                    {sticker.text}
+                  </span>
+                  <span className="text-[7px] font-black uppercase mt-1 tracking-widest leading-none">
                     {sticker.subtext}
                   </span>
                 </div>
               ) : (
-                <div className={`px-5 py-3 font-display font-black text-sm uppercase rounded-md ${sticker.color}`}>
+                <div className={`px-5 py-3 font-display font-black text-sm uppercase rounded-md border-2 border-brand-ink ${sticker.color}`}>
                   {sticker.text}
                 </div>
               )}
@@ -223,21 +204,20 @@ export default function Home() {
 
         {/* Hero Content Panel */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="z-10 text-center max-w-4xl flex flex-col items-center px-4"
         >
-          {/* Comic Book Eyebrow Badge */}
-          <span className="relative z-10 px-4 py-2 border-comic-thin bg-brand-orange text-brand-ink font-display text-xs font-black tracking-[0.25em] uppercase shadow-comic-sm -rotate-2 mb-8">
-            UNIVERSITY OF EXCELLENCE PRESENTS
-            <Sparkles size={13} className="inline shrink-0 ml-1.5 animate-pulse text-brand-ink" />
-          </span>
+          {/* Comic Magazine Header Band */}
+          <div className="border-comic bg-brand-ink text-brand-cloud px-6 py-2.5 font-display text-xs font-black tracking-[0.25em] uppercase shadow-comic -rotate-1 mb-10 bg-halftone-cloud">
+            JK LAKSHMIPAT UNIVERSITY PRESENTS • THE MEGA INDUCTION FEST
+          </div>
 
           {/* Comic Styled Heading Stack */}
-          <div className="relative mb-8 select-none p-4 max-w-full">
+          <div className="relative mb-8 select-none p-3 max-w-full">
             {/* Outline back text */}
-            <h1 className="font-display text-6xl sm:text-7xl md:text-[6.5rem] lg:text-[7.5rem] font-black uppercase leading-none tracking-tighter text-outline-cloud select-none opacity-40">
+            <h1 className="font-display text-6xl sm:text-7xl md:text-[6.5rem] lg:text-[8rem] font-black uppercase leading-none tracking-tighter text-outline-pink select-none">
               BOLD & BEYOND
             </h1>
             {/* Centered Primary Logo */}
@@ -245,28 +225,28 @@ export default function Home() {
               <Image
                 src="/logo.svg"
                 alt="AARAMBH'26"
-                width={560}
-                height={125}
-                className="w-full max-w-xs sm:max-w-md md:max-w-xl h-auto drop-shadow-[6px_6px_0px_#030404] hover:scale-[1.03] transition-transform duration-300 border-comic p-3 bg-brand-cloud rounded-lg"
+                width={550}
+                height={120}
+                className="w-full max-w-xs sm:max-w-md md:max-w-xl h-auto drop-shadow-[8px_8px_0px_#030404] hover:scale-[1.03] transition-transform duration-300 border-comic p-4 bg-brand-cloud rounded-xl"
                 priority
                 loading="eager"
               />
             </div>
           </div>
 
-          {/* Captions wrapped in a narrative box */}
-          <div className="border-comic bg-brand-cloud text-brand-ink p-6 rounded-lg max-w-2xl shadow-comic -rotate-1 mb-10 bg-halftone-black">
+          {/* Narrative Dialogue Box */}
+          <div className="border-comic bg-brand-ink text-brand-cloud p-6 rounded-xl max-w-2xl shadow-comic rotate-1 bg-halftone-cloud mb-10">
             <p className="font-display font-black text-sm sm:text-base leading-relaxed tracking-wide uppercase">
-              “THE ULTIMATE CONVERGENCE OF TECHNOLOGY, CULTURE, AND INNOVATION! THREE DAYS OF LIMITLESS ENERGY AND FEARLESS SELF-EXPRESSION!”
+              “SQUAD REPORT: A FRESH BEGINNING IS INITIATED! PREPARE YOUR PASSES FOR THREE DAYS OF UNFILTERED CREATIVITY AND INNOVATION!”
             </p>
           </div>
 
           {/* Countdown Clock Panel */}
-          <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-12 w-full max-w-md">
+          <div className="grid grid-cols-4 gap-3 sm:gap-4 mb-12 w-full max-w-md text-brand-cloud">
             {countdownBlocks.map((block) => (
               <div
                 key={block.label}
-                className={`p-3 sm:p-4 border-comic rounded-lg shadow-comic-sm flex flex-col items-center ${block.bg} ${block.rotate} transition-transform hover:scale-105`}
+                className={`p-3 sm:p-4 border-comic rounded-lg shadow-comic ${block.bg} ${block.rotate} transition-transform hover:scale-105`}
               >
                 <div className="relative h-8 sm:h-10 overflow-hidden flex items-center justify-center w-full">
                   <AnimatePresence mode="popLayout">
@@ -295,7 +275,7 @@ export default function Home() {
               <div className="relative">
                 {/* Speech Bubble floating callout */}
                 <div className="absolute -top-16 left-1/2 -translate-x-1/2 comic-bubble px-4 py-2 font-display text-xs font-black uppercase whitespace-nowrap animate-bounce z-30">
-                  JOIN THE SQUAD NOW! ⚡
+                  ACTIVATE YOUR ACCESS PASS! ⚡
                 </div>
                 
                 <Link href="/register">
@@ -306,28 +286,15 @@ export default function Home() {
               </div>
             ) : (
               <div className="bg-brand-blue text-brand-cloud border-comic shadow-comic px-8 py-3.5 rounded-lg font-display font-black text-sm uppercase tracking-wider flex items-center gap-2">
-                <ShieldCheck size={20} className="text-brand-orange animate-bounce" /> YOU ARE ENROLLED!
+                <ShieldCheck size={20} className="text-brand-orange animate-bounce" /> ACCESS GRANTED!
               </div>
             )}
-
-            <button
-              onClick={handleVolumeToggle}
-              className="comic-interactive border-comic shadow-comic bg-brand-cloud text-brand-ink px-6 py-3.5 font-display font-black text-xs uppercase tracking-widest rounded-lg flex items-center gap-2"
-            >
-              {isMuted ? <VolumeX size={18} className="text-brand-pink animate-pulse" /> : <Volume2 size={18} className="text-brand-orange animate-bounce" />}
-              <span>{isMuted ? "UNMUTE TRAILER" : "MUTE SOUND"}</span>
-            </button>
           </div>
         </motion.div>
-
-        {/* Narrative Box style Credit tag */}
-        <div className="absolute bottom-6 right-6 z-20 px-4 py-2 bg-brand-cloud border-comic-thin text-xs text-brand-ink font-black tracking-widest uppercase shadow-comic-sm rotate-2 select-none pointer-events-none">
-          CREDIT: VAIBHAV KHANDELWAL
-        </div>
       </section>
 
       {/* Torn paper visual separation */}
-      <TornPaperDivider color="fill-brand-cloud" />
+      <TornPaperDivider color="fill-brand-ink" />
 
       {/* Comic styled strip/marquee */}
       <section className="w-full py-4 border-y-4 border-brand-ink bg-brand-cloud text-brand-ink overflow-hidden z-10">
@@ -351,11 +318,53 @@ export default function Home() {
       </section>
 
       {/* Torn paper visual separation */}
-      <TornPaperDivider color="fill-brand-cloud" flip={true} />
+      <TornPaperDivider color="fill-brand-ink" flip={true} />
 
-      {/* Spectrum Panels (Comic Book Strip Columns) */}
+      {/* Comic Book Panels Grid (Fresh Addition) */}
       <section className="py-24 px-6 w-full max-w-7xl relative z-10 flex flex-col items-center">
         <span className="px-4 py-1.5 border-comic-thin bg-brand-pink text-brand-cloud font-display text-xs font-black tracking-widest uppercase rotate-2 mb-4">
+          EVENT BRIEFINGS
+        </span>
+        <h2 className="text-center font-display text-4xl md:text-5xl font-black uppercase tracking-tight text-brand-cloud mb-4">
+          WHAT&apos;S IN THE COMIC?
+        </h2>
+        <p className="text-center text-brand-cloud/60 max-w-xl mb-16 text-sm">
+          A preview of the episodes scheduled across this multi-day campus induction program.
+        </p>
+
+        {/* 4 Comic Book Grid Panels */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+          {comicStoryPanels.map((panel, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              className="border-comic bg-brand-cloud text-brand-ink p-8 rounded-xl shadow-comic bg-halftone-black flex flex-col sm:flex-row gap-6 items-start hover:-translate-y-1 transition-transform cursor-pointer"
+            >
+              <div className={`p-4 border-comic-thin rounded-lg shrink-0 ${panel.color} shadow-comic-sm`}>
+                {panel.icon}
+              </div>
+              <div className="space-y-3">
+                <span className="text-[10px] font-black uppercase tracking-widest text-brand-pink">
+                  EPISODE #{idx + 1} • {panel.category}
+                </span>
+                <h3 className="font-display text-2xl font-black uppercase leading-none tracking-tight">
+                  {panel.title}
+                </h3>
+                <p className="text-xs sm:text-sm font-bold text-brand-ink/80 leading-relaxed uppercase">
+                  {panel.description}
+                </p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Spectrum Panels (Comic Book Color Story) */}
+      <section className="py-24 px-6 w-full max-w-7xl relative z-10 flex flex-col items-center">
+        <span className="px-4 py-1.5 border-comic-thin bg-brand-orange text-brand-ink font-display text-xs font-black tracking-widest uppercase -rotate-2 mb-4">
           SPECTRUM STORY
         </span>
         <h2 className="text-center font-display text-4xl md:text-5xl font-black uppercase tracking-tight text-brand-cloud mb-4">
