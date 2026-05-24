@@ -36,6 +36,12 @@
   --shadow-brand-blue: 0 0 40px rgba(13, 33, 221, 0.25);
 }
 
+<<<<<<< HEAD
+html { background-color: var(--color-brand-cloud); }
+
+body {
+  margin: 0;
+=======
 html,
 body {
   max-width: 100%;
@@ -44,7 +50,11 @@ body {
   background-color: var(--color-brand-ink);
   min-height: 100vh;
   font-family: var(--font-sans);
+>>>>>>> 17db9d1c7ca11a67aa271b0593cb8bd1bace9ed4
 }
+
+
+
 
 .glass-card {
   @apply bg-brand-cloud/5 backdrop-blur-md border border-brand-cloud/15 rounded-md shadow-xl;
