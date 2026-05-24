@@ -49,7 +49,7 @@ const marqueeVariants: Variants = {
 };
 
 // Web Audio API Retro sound effects synthesizer
-const playSynthSound = (type: 'boom' | 'pow' | 'bang' | 'stamp' | 'click') => {
+const playSynthSound = (type: 'boom' | 'pow' | 'bang' | 'stamp' | 'click' | 'jump') => {
   if (typeof window === 'undefined') return;
   try {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -63,7 +63,16 @@ const playSynthSound = (type: 'boom' | 'pow' | 'bang' | 'stamp' | 'click') => {
 
     const now = ctx.currentTime;
 
-    if (type === 'boom') {
+    if (type === 'jump') {
+      // Classic Mario jump (fast pitch sweep up)
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+      osc.start(now);
+      osc.stop(now + 0.15);
+    } else if (type === 'boom') {
       // Deep explosion rumble sliding down
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(140, now);
@@ -117,6 +126,7 @@ const playSynthSound = (type: 'boom' | 'pow' | 'bang' | 'stamp' | 'click') => {
 
 
 export default function Home() {
+  const [introStarted, setIntroStarted] = useState(false);
   const [introComplete, setIntroComplete] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, mins: 0, secs: 0 });
   const [hasRegistered, setHasRegistered] = useState(false);
@@ -138,6 +148,42 @@ export default function Home() {
     }));
     setParticles((prev) => [...prev, ...newParticles].slice(-40)); // Keep max 40 in DOM
   };
+
+  // Mario Intro Animation Sequence
+  useEffect(() => {
+    if (!introStarted) return;
+    
+    // Jump times corresponding to the character hitting the 5 letters (1s, 2s, 3s, 4s, 5s)
+    const timeouts = Array.from({ length: 5 }).map((_, i) => {
+      const hitTimeMs = (i + 1) * 1000;
+      return setTimeout(() => playSynthSound('bang'), hitTimeMs - 100); // Play bang sound right before impact
+    });
+    return () => timeouts.forEach(clearTimeout);
+  }, [introStarted]);
+
+  // Generate Mario Animation Arrays
+  const NUM_SLICES = 5;
+  const TOTAL_DURATION = 5.0; // 1.0s per slice
+  
+  const marioLeft = ['-10%'];
+  const marioLeftTimes = [0];
+  const marioY = [0];
+  const marioYTimes = [0];
+  
+  for (let i = 0; i < NUM_SLICES; i++) {
+    const hitTimeSec = (i + 1) * 1.0; 
+    const hitNorm = hitTimeSec / TOTAL_DURATION; 
+    
+    // X motion
+    marioLeft.push(`${(i * 20) + 10}%`);
+    marioLeftTimes.push(hitNorm);
+    
+    // Y motion (jump)
+    const jumpStart = Math.max(0, hitNorm - 0.05);
+    const jumpEnd = Math.min(1, hitNorm + 0.05);
+    marioY.push(0, -60, 0);
+    marioYTimes.push(jumpStart, hitNorm, jumpEnd);
+  }
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -292,6 +338,23 @@ export default function Home() {
         </AnimatePresence>
       </div>
 
+      {/* Full Screen Intro Overlay (Resolves Autoplay Policy) */}
+      <AnimatePresence>
+        {!introStarted && (
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            onClick={() => setIntroStarted(true)}
+            className="fixed inset-0 z-[100] bg-brand-ink flex flex-col items-center justify-center cursor-pointer overflow-hidden"
+          >
+             <h2 className="font-display text-4xl sm:text-6xl text-brand-cloud animate-pulse tracking-tighter drop-shadow-md z-10">PRESS START</h2>
+             <p className="text-brand-cloud/60 mt-4 font-mono text-sm uppercase z-10">Tap anywhere to enter and enable audio</p>
+             <div className="absolute inset-0 bg-halftone-white opacity-[0.05] pointer-events-none" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Comic Magazine Cover Hero */}
       <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-28 px-4 overflow-hidden bg-brand-cloud text-brand-ink">
 
@@ -377,42 +440,32 @@ export default function Home() {
                 {/* Base logo card with drop shadow */}
                 <div className="relative z-10 w-full bg-brand-cloud border-comic rounded-xl p-4 sm:p-6 drop-shadow-[8px_8px_0px_#030404] flex items-center justify-center perspective-[1500px] transform-style-3d min-h-[140px] sm:min-h-[180px]">
                   
-                  {/* Logo Container for Jigsaw SVG Assembly */}
-                  <motion.div 
-                     className="relative w-full aspect-[550/120] z-20 pointer-events-none"
-                  >
-                    {[0, 1, 2, 3, 4, 5].map((sliceIndex) => {
-                      // Slice into 6 equal horizontal pieces
-                      const leftPercent = sliceIndex * (100 / 6);
-                      const rightPercent = 100 - ((sliceIndex + 1) * (100 / 6));
+                  {/* The Logo SVG Slices (Grayscale to Color) */}
+                  <div className="relative w-full aspect-[550/120] z-20 pointer-events-none mt-2">
+                    {introStarted && Array.from({ length: 5 }).map((_, sliceIndex) => {
+                      // Slice into 5 pieces
+                      const leftPercent = sliceIndex * 20;
+                      const rightPercent = 100 - ((sliceIndex + 1) * 20);
                       
-                      const startConfigs = [
-                        { x: -800, y: -400, rotate: -75 },
-                        { x: 800, y: -300, rotate: 60 },
-                        { x: -700, y: 500, rotate: -90 },
-                        { x: 700, y: 400, rotate: 120 },
-                        { x: -300, y: -700, rotate: -30 },
-                        { x: 300, y: 600, rotate: 75 },
-                      ];
-                      const config = startConfigs[sliceIndex];
+                      // Hit timing (Mario hits each block every 1.0s)
+                      const hitTime = (sliceIndex + 1) * 1.0;
                       
                       return (
                         <motion.div
-                          key={`slice-${sliceIndex}`}
-                          initial={{ x: config.x, y: config.y, rotate: config.rotate, opacity: 0, scale: 1.5 }}
+                          key={`mario-slice-${sliceIndex}`}
+                          initial={{ filter: "grayscale(100%) brightness(0.2) contrast(1.5)", y: 0 }}
                           animate={{ 
-                            x: [config.x, 0], 
-                            y: [config.y, 0],
-                            rotate: [config.rotate, 0],
-                            opacity: [0, 1],
-                            scale: [1.5, 1] 
+                            filter: [
+                              "grayscale(100%) brightness(0.2) contrast(1.5)", 
+                              "grayscale(0%) brightness(1.3) contrast(1.1)", // Flash bright color on impact
+                              "grayscale(0%) brightness(1) contrast(1)" // Settle to original
+                            ],
+                            y: [0, -15, 0] // Bump up like hitting a block
                           }}
                           transition={{ 
-                            delay: 0.5 + sliceIndex * 0.3, // Staggered entry from off-screen
-                            duration: 1.2, 
-                            type: "spring",
-                            stiffness: 70,
-                            damping: 12,
+                            delay: hitTime, 
+                            duration: 0.6, 
+                            ease: "easeOut"
                           }}
                           className="absolute inset-0 w-full h-full"
                           style={{ 
@@ -431,24 +484,53 @@ export default function Home() {
                         </motion.div>
                       );
                     })}
-                  </motion.div>
+                  </div>
 
-                  {/* Final Cinematic Polish */}
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 0, 1, 0] }}
-                    transition={{ duration: 4.5, times: [0, 0.7, 0.8, 1] }}
-                    className="absolute inset-0 bg-brand-pink blur-[40px] z-10 pointer-events-none mix-blend-screen"
-                  />
-                  
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 1.5] }}
-                    transition={{ delay: 2.8, duration: 0.8 }}
-                    className="absolute top-0 right-4 text-brand-orange z-30"
-                  >
-                    <Sparkles size={32} />
-                  </motion.div>
+                  {/* The 8-Bit Mario Character */}
+                  <div className="absolute bottom-[-10px] w-full h-[60px] z-30 pointer-events-none overflow-visible">
+                    {introStarted && (
+                      <motion.div 
+                        animate={{ 
+                          left: marioLeft,
+                          opacity: [1, 1, 0] // Disappear exactly at the end
+                        }}
+                        transition={{ 
+                          left: { duration: TOTAL_DURATION, times: marioLeftTimes, ease: "linear" },
+                          opacity: { duration: TOTAL_DURATION, times: [0, 0.98, 1], ease: "linear" }
+                        }}
+                        className="absolute bottom-0 w-8 h-10"
+                      >
+                        {/* Character Sprite bouncing up and down */}
+                        <motion.div
+                           animate={{
+                             y: marioY
+                           }}
+                           transition={{
+                             y: { duration: TOTAL_DURATION, times: marioYTimes, ease: "easeOut" }
+                           }}
+                           className="relative w-full h-full"
+                        >
+                        {/* Simple 8-Bit Character made of blocks */}
+                        {/* Hat */}
+                        <div className="absolute top-0 left-[4px] w-[20px] h-[6px] bg-brand-orange" />
+                        {/* Face */}
+                        <div className="absolute top-[6px] left-[8px] w-[16px] h-[10px] bg-[#fcdbb6]" />
+                        {/* Mustache/Eye */}
+                        <div className="absolute top-[8px] left-[18px] w-[8px] h-[4px] bg-brand-ink" />
+                        {/* Body */}
+                        <div className="absolute top-[16px] left-[6px] w-[16px] h-[10px] bg-brand-orange" />
+                        {/* Overalls */}
+                        <div className="absolute top-[20px] left-[8px] w-[12px] h-[8px] bg-brand-blue" />
+                        {/* Legs */}
+                        <div className="absolute top-[28px] left-[8px] w-[6px] h-[8px] bg-brand-blue" />
+                        <div className="absolute top-[28px] left-[14px] w-[6px] h-[8px] bg-brand-blue" />
+                        {/* Shoes */}
+                        <div className="absolute top-[36px] left-[8px] w-[8px] h-[4px] bg-brand-ink" />
+                        <div className="absolute top-[36px] left-[16px] w-[8px] h-[4px] bg-brand-ink" />
+                      </motion.div>
+                    </motion.div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -784,7 +866,6 @@ export default function Home() {
               placeholder="ENTER.YOUR.EMAIL@HERE.COM"
               className="bg-brand-cloud border-comic text-brand-ink placeholder:text-brand-ink/40 font-mono text-sm font-bold focus:outline-none focus:bg-white transition-colors flex-grow shadow-inner uppercase tracking-wider p-3 rounded-lg"
               required
-              suppressHydrationWarning={true}
             />
             <button
               type="submit"

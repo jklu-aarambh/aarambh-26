@@ -377,42 +377,75 @@ export default function Home() {
                 {/* Base logo card with drop shadow */}
                 <div className="relative z-10 w-full bg-brand-cloud border-comic rounded-xl p-4 sm:p-6 drop-shadow-[8px_8px_0px_#030404] flex items-center justify-center perspective-[1500px] transform-style-3d min-h-[140px] sm:min-h-[180px]">
                   
-                  {/* Logo Container for Jigsaw SVG Assembly */}
+                  {/* The Portal (Pushed deep back, smaller, fades out completely at the end) */}
+                  <motion.div
+                    initial={{ opacity: 1 }}
+                    animate={{ opacity: [1, 1, 1, 0] }}
+                    transition={{ duration: 5.5, times: [0, 0.8, 0.9, 1], ease: "easeInOut" }}
+                    className="absolute inset-0 flex justify-center items-center pointer-events-none z-0"
+                  >
+                    {/* The Double Doors Frame - Made smaller and deeper so it feels far behind the screen */}
+                    <div className="relative w-24 h-32 sm:w-28 sm:h-36 flex" style={{ transform: 'translateZ(-400px)' }}>
+                      {/* Door Background/Inside */}
+                      <div className="absolute inset-0 bg-[#0a0a0a] border-2 border-brand-ink rounded-t-xl overflow-hidden flex items-center justify-center shadow-[inset_0_10px_20px_rgba(0,0,0,0.8)]">
+                        {/* Glowing Light Inside Portal */}
+                        <motion.div 
+                           initial={{ opacity: 0, scale: 0.2 }}
+                           animate={{ opacity: [0, 1, 1], scale: [0.2, 1.5, 1] }}
+                           transition={{ delay: 0.5, duration: 1.5 }}
+                           className="absolute inset-0 bg-brand-pink blur-md opacity-70 mix-blend-screen"
+                        />
+                      </div>
+                      
+                      {/* Left Door */}
+                      <motion.div
+                        initial={{ rotateY: 0 }}
+                        animate={{ rotateY: -110 }}
+                        transition={{ delay: 0.2, duration: 1.0, ease: "easeInOut" }}
+                        style={{ transformOrigin: 'left', width: '50%' }}
+                        className="relative h-full bg-brand-orange border-y-2 border-l-2 border-r border-brand-ink rounded-tl-xl flex items-center justify-end pr-0.5"
+                      >
+                         <div className="w-1 h-4 bg-brand-ink rounded-sm" />
+                      </motion.div>
+                      
+                      {/* Right Door */}
+                      <motion.div
+                        initial={{ rotateY: 0 }}
+                        animate={{ rotateY: 110 }}
+                        transition={{ delay: 0.2, duration: 1.0, ease: "easeInOut" }}
+                        style={{ transformOrigin: 'right', width: '50%' }}
+                        className="relative h-full bg-brand-orange border-y-2 border-r-2 border-l border-brand-ink rounded-tr-xl flex items-center justify-start pl-0.5"
+                      >
+                         <div className="w-1 h-4 bg-brand-ink rounded-sm" />
+                      </motion.div>
+                    </div>
+                  </motion.div>
+
+                  {/* Logo Container for Sliced SVG Assembly */}
                   <motion.div 
                      className="relative w-full aspect-[550/120] z-20 pointer-events-none"
+                     animate={{ rotate: [0, 0, -1, 1, -0.5, 0.5, 0] }} // Subtle shake on impact
+                     transition={{ duration: 4.0, times: [0, 0.85, 0.87, 0.89, 0.91, 0.93, 1], ease: "easeInOut" }}
                   >
-                    {[0, 1, 2, 3, 4, 5].map((sliceIndex) => {
-                      // Slice into 6 equal horizontal pieces
-                      const leftPercent = sliceIndex * (100 / 6);
-                      const rightPercent = 100 - ((sliceIndex + 1) * (100 / 6));
-                      
-                      const startConfigs = [
-                        { x: -800, y: -400, rotate: -75 },
-                        { x: 800, y: -300, rotate: 60 },
-                        { x: -700, y: 500, rotate: -90 },
-                        { x: 700, y: 400, rotate: 120 },
-                        { x: -300, y: -700, rotate: -30 },
-                        { x: 300, y: 600, rotate: 75 },
-                      ];
-                      const config = startConfigs[sliceIndex];
+                    {[0, 1, 2, 3].map((sliceIndex) => {
+                      // Slice into 4 equal horizontal pieces (0-25%, 25-50%, etc.)
+                      const leftPercent = sliceIndex * 25;
+                      const rightPercent = 100 - ((sliceIndex + 1) * 25);
                       
                       return (
                         <motion.div
                           key={`slice-${sliceIndex}`}
-                          initial={{ x: config.x, y: config.y, rotate: config.rotate, opacity: 0, scale: 1.5 }}
+                          initial={{ z: -250, opacity: 0, scale: 0.1 }}
                           animate={{ 
-                            x: [config.x, 0], 
-                            y: [config.y, 0],
-                            rotate: [config.rotate, 0],
-                            opacity: [0, 1],
-                            scale: [1.5, 1] 
+                            z: [-250, 0, 0], 
+                            opacity: [0, 1, 1],
+                            scale: [0.1, 1.1, 1] 
                           }}
                           transition={{ 
-                            delay: 0.5 + sliceIndex * 0.3, // Staggered entry from off-screen
-                            duration: 1.2, 
-                            type: "spring",
-                            stiffness: 70,
-                            damping: 12,
+                            delay: 1.5 + sliceIndex * 0.3, // Staggered exit from portal
+                            duration: 0.9, 
+                            times: [0, 0.6, 1],
+                            ease: "easeOut"
                           }}
                           className="absolute inset-0 w-full h-full"
                           style={{ 
@@ -437,14 +470,14 @@ export default function Home() {
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: [0, 0, 1, 0] }}
-                    transition={{ duration: 4.5, times: [0, 0.7, 0.8, 1] }}
+                    transition={{ duration: 5.0, times: [0, 0.7, 0.8, 1] }}
                     className="absolute inset-0 bg-brand-pink blur-[40px] z-10 pointer-events-none mix-blend-screen"
                   />
                   
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 1.5] }}
-                    transition={{ delay: 2.8, duration: 0.8 }}
+                    transition={{ delay: 3.5, duration: 0.8 }}
                     className="absolute top-0 right-4 text-brand-orange z-30"
                   >
                     <Sparkles size={32} />
@@ -526,10 +559,11 @@ export default function Home() {
           >
             {[...Array(4)].map((_, i) => (
               <React.Fragment key={i}>
-                <span className="text-brand-pink">💥 AARAMBH &apos;26</span>
-                <span className="text-brand-blue">🎓 JK LAKSHMIPAT UNIVERSITY</span>
-                <span className="text-brand-orange">💥 AARAMBH &apos;26</span>
-                <span className="text-brand-ink">🎓 JK LAKSHMIPAT UNIVERSITY</span>
+                <span className="text-brand-pink">💥 BOLD & BEYOND!</span>
+                <span className="text-brand-blue">🌟 LIMITLESS!</span>
+                <span className="text-brand-orange">⚡ ENERGY!</span>
+                <span className="text-brand-ink">🎨 CRASH!</span>
+                <span className="text-brand-pink">🔥 FEARLESS!</span>
               </React.Fragment>
             ))}
           </motion.div>
@@ -784,7 +818,6 @@ export default function Home() {
               placeholder="ENTER.YOUR.EMAIL@HERE.COM"
               className="bg-brand-cloud border-comic text-brand-ink placeholder:text-brand-ink/40 font-mono text-sm font-bold focus:outline-none focus:bg-white transition-colors flex-grow shadow-inner uppercase tracking-wider p-3 rounded-lg"
               required
-              suppressHydrationWarning={true}
             />
             <button
               type="submit"
