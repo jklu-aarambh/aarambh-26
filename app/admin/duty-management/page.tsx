@@ -77,9 +77,22 @@ const convert12to24 = (time12: string) => {
   return `${String(hours).padStart(2, '0')}:${minutes}`;
 };
 
+// Parse time string in "HH:MM" format to minutes since midnight
+const parseTimeToMinutes = (timeStr: string) => {
+  if (!timeStr) return 0;
+  const [h, m] = timeStr.split(':').map(Number);
+  return (isNaN(h) ? 0 : h) * 60 + (isNaN(m) ? 0 : m);
+};
+
 // Parse single/range event times
 const parseEventTimes = (timeRangeStr: string) => {
   if (!timeRangeStr) return { from: '09:00', to: '10:00' };
+  
+  const cleanStr = timeRangeStr.trim().toLowerCase();
+  if (cleanStr.includes('all day')) {
+    return { from: '00:00', to: '23:59' };
+  }
+
   const parts = timeRangeStr.split('-');
   if (parts.length === 2) {
     const from24 = convert12to24(parts[0]);
@@ -99,6 +112,30 @@ const parseEventTimes = (timeRangeStr: string) => {
   }
   return { from: '09:00', to: '10:00' };
 };
+
+// Find event locations that overlap with the selected time slot on the selected date
+const getOverlappingEventLocations = (events: any[], start: string, end: string) => {
+  const startMin = parseTimeToMinutes(start);
+  const endMin = parseTimeToMinutes(end);
+  if (startMin >= endMin) return [];
+
+  const locations: string[] = [];
+  events.forEach((evt) => {
+    if (!evt.location) return;
+    const evtTimes = parseEventTimes(evt.time);
+    const evtStartMin = parseTimeToMinutes(evtTimes.from);
+    const evtEndMin = parseTimeToMinutes(evtTimes.to);
+
+    // Overlap formula: startA < endB && endA > startB
+    if (startMin < evtEndMin && endMin > evtStartMin) {
+      if (!locations.includes(evt.location)) {
+        locations.push(evt.location);
+      }
+    }
+  });
+  return locations;
+};
+
 
 const VENUES = [
   'Main Gate',
@@ -131,11 +168,13 @@ export default function DutyManagement() {
   const [dutyAssignments, setDutyAssignments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Dynamically compute unique teams from fetched volunteers
+  // Dynamically compute unique teams from fetched volunteers (excluding 'Organizing Head')
   const dynamicTeams = useMemo(() => {
     const teamsSet = new Set<string>();
     volunteers.forEach((v) => {
-      if (v.team) teamsSet.add(v.team);
+      if (v.team && v.team.toLowerCase() !== 'organizing head') {
+        teamsSet.add(v.team);
+      }
     });
     return Array.from(teamsSet).sort();
   }, [volunteers]);
@@ -150,9 +189,9 @@ export default function DutyManagement() {
   const [notes, setNotes] = useState('');
   const [selectedEventTitle, setSelectedEventTitle] = useState('');
   
-  // Volunteer Multi-select Search State
-  const [searchVolQuery, setSearchVolQuery] = useState('');
-  const [showVolDropdown, setShowVolDropdown] = useState(false);
+  // Volunteer Selection Search States
+  const [searchLeaderQuery, setSearchLeaderQuery] = useState('');
+  const [searchMemberQuery, setSearchMemberQuery] = useState('');
 
   // Table Filters State
   const [searchQuery, setSearchQuery] = useState('');
@@ -213,23 +252,34 @@ export default function DutyManagement() {
     return daySchedule ? daySchedule.events : [];
   }, [editDate]);
 
-  // Predefined venues merged with currently selected custom event venue if applicable
-  const venueOptions = useMemo(() => {
-    const options = [...VENUES];
-    if (selectedVenue && !options.includes(selectedVenue)) {
-      options.push(selectedVenue);
-    }
-    return options;
-  }, [selectedVenue]);
+  // Dynamically computed venue options based on overlap with selected date & times
+  const { suggestedVenues, standardVenues } = useMemo(() => {
+    const overlappingLocs = getOverlappingEventLocations(eventsForSelectedDate, timeFrom, timeTo);
+    const std = VENUES.filter(v => !overlappingLocs.includes(v));
+    return {
+      suggestedVenues: overlappingLocs,
+      standardVenues: std
+    };
+  }, [eventsForSelectedDate, timeFrom, timeTo]);
 
-  // Predefined venues merged with edit modal custom event venue if applicable
-  const editVenueOptions = useMemo(() => {
-    const options = [...VENUES];
-    if (editVenue && !options.includes(editVenue)) {
-      options.push(editVenue);
-    }
-    return options;
-  }, [editVenue]);
+  const isCustomVenue = useMemo(() => {
+    return !!(selectedVenue && !suggestedVenues.includes(selectedVenue) && !standardVenues.includes(selectedVenue));
+  }, [selectedVenue, suggestedVenues, standardVenues]);
+
+  // Dynamically computed venue options for edit modal
+  const { editSuggestedVenues, editStandardVenues } = useMemo(() => {
+    const overlappingLocs = getOverlappingEventLocations(eventsForEditDate, editTimeFrom, editTimeTo);
+    const std = VENUES.filter(v => !overlappingLocs.includes(v));
+    return {
+      editSuggestedVenues: overlappingLocs,
+      editStandardVenues: std
+    };
+  }, [eventsForEditDate, editTimeFrom, editTimeTo]);
+
+  const isEditCustomVenue = useMemo(() => {
+    return !!(editVenue && !editSuggestedVenues.includes(editVenue) && !editStandardVenues.includes(editVenue));
+  }, [editVenue, editSuggestedVenues, editStandardVenues]);
+
 
   // Validation Warnings
   const [formWarning, setFormWarning] = useState<string | null>(null);
@@ -245,23 +295,23 @@ export default function DutyManagement() {
         const snap = await getDocs(collection(db, 'volunteers'));
         if (snap.empty) {
           const mockVolunteers = [
-            { name: 'Aman Sharma', team: 'Registration Team', email: 'aman@aarambh.com' },
-            { name: 'Tanya Saxena', team: 'Registration Team', email: 'tanya@aarambh.com' },
-            { name: 'Devam', team: 'Technical Team', email: 'devam@aarambh.com' },
-            { name: 'Manant Srivastava', team: 'Technical Team', email: 'manant@aarambh.com' },
-            { name: 'Rohan Gupta', team: 'Technical Team', email: 'rohan@aarambh.com' },
-            { name: 'Vikram Singh', team: 'Discipline Team', email: 'vikram@aarambh.com' },
-            { name: 'Aditi Rao', team: 'Discipline Team', email: 'aditi@aarambh.com' },
-            { name: 'Neha Sharma', team: 'Hospitality Team', email: 'neha@aarambh.com' },
-            { name: 'Rahul Kapoor', team: 'Hospitality Team', email: 'rahul@aarambh.com' },
-            { name: 'Sanya Mehta', team: 'Decoration Team', email: 'sanya@aarambh.com' },
-            { name: 'Karan Johar', team: 'Decoration Team', email: 'karan@aarambh.com' },
-            { name: 'Priya Malhotra', team: 'Anchoring Team', email: 'priya@aarambh.com' },
-            { name: 'Kabir Sen', team: 'Anchoring Team', email: 'kabir@aarambh.com' },
-            { name: 'Arjun Reddy', team: 'Photography Team', email: 'arjun@aarambh.com' },
-            { name: 'Meera Nair', team: 'Photography Team', email: 'meera@aarambh.com' },
-            { name: 'Riya Sen', team: 'Social Media Team', email: 'riya@aarambh.com' },
-            { name: 'Yash Vardhan', team: 'Social Media Team', email: 'yash@aarambh.com' },
+            { name: 'Aman Sharma', team: 'Registration Team', email: 'aman@aarambh.com', role: 'Team Leader' },
+            { name: 'Tanya Saxena', team: 'Registration Team', email: 'tanya@aarambh.com', role: 'Volunteer' },
+            { name: 'Devam', team: 'Technical Team', email: 'devam@aarambh.com', role: 'Team Leader' },
+            { name: 'Manant Srivastava', team: 'Technical Team', email: 'manant@aarambh.com', role: 'Volunteer' },
+            { name: 'Rohan Gupta', team: 'Technical Team', email: 'rohan@aarambh.com', role: 'Volunteer' },
+            { name: 'Vikram Singh', team: 'Discipline Team', email: 'vikram@aarambh.com', role: 'Team Leader' },
+            { name: 'Aditi Rao', team: 'Discipline Team', email: 'aditi@aarambh.com', role: 'Volunteer' },
+            { name: 'Neha Sharma', team: 'Hospitality Team', email: 'neha@aarambh.com', role: 'Team Leader' },
+            { name: 'Rahul Kapoor', team: 'Hospitality Team', email: 'rahul@aarambh.com', role: 'Volunteer' },
+            { name: 'Sanya Mehta', team: 'Decoration Team', email: 'sanya@aarambh.com', role: 'Team Leader' },
+            { name: 'Karan Johar', team: 'Decoration Team', email: 'karan@aarambh.com', role: 'Volunteer' },
+            { name: 'Priya Malhotra', team: 'Anchoring Team', email: 'priya@aarambh.com', role: 'Team Leader' },
+            { name: 'Kabir Sen', team: 'Anchoring Team', email: 'kabir@aarambh.com', role: 'Volunteer' },
+            { name: 'Arjun Reddy', team: 'Photography Team', email: 'arjun@aarambh.com', role: 'Team Leader' },
+            { name: 'Meera Nair', team: 'Photography Team', email: 'meera@aarambh.com', role: 'Volunteer' },
+            { name: 'Riya Sen', team: 'Social Media Team', email: 'riya@aarambh.com', role: 'Team Leader' },
+            { name: 'Yash Vardhan', team: 'Social Media Team', email: 'yash@aarambh.com', role: 'Volunteer' },
           ];
           
           const batch = writeBatch(db);
@@ -298,10 +348,6 @@ export default function DutyManagement() {
   // --------------------------------------------------------------------------
   // TIME VALIDATION & DUPLICATION CHECKS
   // --------------------------------------------------------------------------
-  const parseTimeToMinutes = (timeStr: string) => {
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-  };
 
   const checkOverlappingDuty = (volId: string, date: string, start: string, end: string, excludeId?: string) => {
     const startMin = parseTimeToMinutes(start);
@@ -397,7 +443,8 @@ export default function DutyManagement() {
       // Reset form fields
       setSelectedVolunteers([]);
       setNotes('');
-      setSearchVolQuery('');
+      setSearchLeaderQuery('');
+      setSearchMemberQuery('');
     } catch (err: any) {
       console.error(err);
       setFormWarning(`Failed to assign duties: ${err.message}`);
@@ -412,7 +459,8 @@ export default function DutyManagement() {
     setTimeTo('13:00');
     setSelectedVenue('');
     setNotes('');
-    setSearchVolQuery('');
+    setSearchLeaderQuery('');
+    setSearchMemberQuery('');
     setSelectedEventTitle('');
     setFormWarning(null);
   };
@@ -522,25 +570,86 @@ export default function DutyManagement() {
   };
 
   // --------------------------------------------------------------------------
-  // VOLUNTEER DROPDOWN FILTER & MULTISELECT
+  // VOLUNTEER SELECTION FILTER & MULTISELECT
   // --------------------------------------------------------------------------
   const availableVolunteers = useMemo(() => {
     if (!selectedTeam) return [];
     return volunteers.filter(v => v.team === selectedTeam);
   }, [volunteers, selectedTeam]);
 
-  const filteredVolunteersForSelection = useMemo(() => {
-    return availableVolunteers.filter((v) => {
-      const isAlreadySelected = selectedVolunteers.some(sel => sel.id === v.id);
-      const matchesSearch = v.name.toLowerCase().includes(searchVolQuery.toLowerCase());
-      return !isAlreadySelected && matchesSearch;
-    });
-  }, [availableVolunteers, selectedVolunteers, searchVolQuery]);
+  // Separate Leaders and Members (de-duplicated by name)
+  const teamLeaders = useMemo(() => {
+    const seen = new Set();
+    const unique = [];
+    const list = availableVolunteers.filter(v => 
+      v.role?.toLowerCase() === 'team leader' && 
+      v.team?.toLowerCase() !== 'organizing head' &&
+      v.team?.toLowerCase() !== 'cohort leader'
+    );
+    for (const v of list) {
+      const key = v.name.trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(v);
+      }
+    }
+    return unique;
+  }, [availableVolunteers]);
 
-  const handleAddVolunteer = (vol: any) => {
-    setSelectedVolunteers([...selectedVolunteers, vol]);
-    setSearchVolQuery('');
-    setShowVolDropdown(false);
+  const teamMembers = useMemo(() => {
+    const seen = new Set();
+    const unique = [];
+    const list = availableVolunteers.filter(v => 
+      v.role?.toLowerCase() !== 'team leader' || 
+      v.team?.toLowerCase() === 'organizing head' ||
+      v.team?.toLowerCase() === 'cohort leader'
+    );
+    for (const v of list) {
+      const key = v.name.trim().toLowerCase();
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(v);
+      }
+    }
+    return unique;
+  }, [availableVolunteers]);
+
+  // Filtered by Search Queries
+  const filteredLeaders = useMemo(() => {
+    return teamLeaders.filter(v => 
+      v.name.toLowerCase().includes(searchLeaderQuery.toLowerCase())
+    );
+  }, [teamLeaders, searchLeaderQuery]);
+
+  const filteredMembers = useMemo(() => {
+    return teamMembers.filter(v => 
+      v.name.toLowerCase().includes(searchMemberQuery.toLowerCase())
+    );
+  }, [teamMembers, searchMemberQuery]);
+
+  const selectedLeadersCount = useMemo(() => {
+    return selectedVolunteers.filter(sv => 
+      sv.role?.toLowerCase() === 'team leader' && 
+      sv.team?.toLowerCase() !== 'organizing head' &&
+      sv.team?.toLowerCase() !== 'cohort leader'
+    ).length;
+  }, [selectedVolunteers]);
+
+  const selectedMembersCount = useMemo(() => {
+    return selectedVolunteers.filter(sv => 
+      sv.role?.toLowerCase() !== 'team leader' || 
+      sv.team?.toLowerCase() === 'organizing head' ||
+      sv.team?.toLowerCase() === 'cohort leader'
+    ).length;
+  }, [selectedVolunteers]);
+
+  const toggleVolunteerSelection = (vol: any) => {
+    const isSelected = selectedVolunteers.some(v => v.id === vol.id);
+    if (isSelected) {
+      setSelectedVolunteers(selectedVolunteers.filter(v => v.id !== vol.id));
+    } else {
+      setSelectedVolunteers([...selectedVolunteers, vol]);
+    }
   };
 
   const handleRemoveVolunteer = (volId: string) => {
@@ -692,6 +801,8 @@ export default function DutyManagement() {
                   onChange={(e) => {
                     setSelectedTeam(e.target.value);
                     setSelectedVolunteers([]); // clear selected list on team swap
+                    setSearchLeaderQuery('');
+                    setSearchMemberQuery('');
                   }}
                   className="w-full bg-brand-cloud/45 border-2 border-brand-ink rounded-md py-3 pl-11 pr-4 text-sm text-brand-ink font-bold focus:outline-none focus:border-brand-pink focus:bg-white shadow-[2px_2px_0px_0px_#030404] transition-colors cursor-pointer"
                 >
@@ -703,15 +814,15 @@ export default function DutyManagement() {
               </div>
             </div>
 
-            {/* STEP 3: Select Team Member */}
-            <div className="col-span-1 md:col-span-2 space-y-2 relative">
+            {/* STEP 3: Select Team Member & Leader Side-by-Side */}
+            <div className="col-span-1 md:col-span-2 space-y-3">
               <label className="block text-[10px] font-black uppercase text-brand-ink/65 tracking-wider">
                 Step 3 — Select Volunteer(s)
               </label>
-              
+
               {/* Pills Container for Selected Volunteers */}
               {selectedVolunteers.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-3 bg-brand-cloud/25 p-3 border-2 border-brand-ink border-dashed rounded-md">
+                <div className="flex flex-wrap gap-2 mb-2 bg-brand-cloud/25 p-3 border-2 border-brand-ink border-dashed rounded-md">
                   {selectedVolunteers.map((vol) => (
                     <div 
                       key={vol.id}
@@ -719,6 +830,9 @@ export default function DutyManagement() {
                     >
                       <User size={12} className="text-brand-pink" />
                       <span>{vol.name}</span>
+                      <span className="text-[9px] px-1 bg-brand-cloud border border-brand-ink/30 rounded uppercase font-black text-admin-muted scale-90">
+                        {(vol.role === 'Team Leader' && vol.team?.toLowerCase() !== 'organizing head' && vol.team?.toLowerCase() !== 'cohort leader') ? 'Ldr' : 'Mbr'}
+                      </span>
                       <button 
                         type="button" 
                         onClick={() => handleRemoveVolunteer(vol.id)}
@@ -731,55 +845,116 @@ export default function DutyManagement() {
                 </div>
               )}
 
-              {/* Searchable input box */}
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-ink/40" size={16} />
-                <input
-                  type="text"
-                  placeholder={
-                    !selectedTeam 
-                      ? "Select a Team first to view volunteers..." 
-                      : "Search volunteer name..."
-                  }
-                  disabled={!selectedTeam}
-                  value={searchVolQuery}
-                  onFocus={() => setShowVolDropdown(true)}
-                  onChange={(e) => setSearchVolQuery(e.target.value)}
-                  className="w-full bg-brand-cloud/40 border-2 border-brand-ink rounded-md py-3 pl-11 pr-4 text-sm text-brand-ink font-bold placeholder:text-brand-ink/30 focus:outline-none focus:border-brand-pink focus:bg-white shadow-inner disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                />
-                {searchVolQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchVolQuery('')}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-admin-muted hover:text-brand-ink focus:outline-none"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
+              {!selectedTeam ? (
+                <div className="p-8 text-center text-xs font-black uppercase tracking-wider text-admin-muted border-2 border-dashed border-brand-ink/15 rounded-md bg-brand-cloud/10">
+                  Please select a Team first in Step 2 to view and assign volunteers.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Left Column: Team Leaders */}
+                  <div className="bg-white border-2 border-brand-ink rounded-md shadow-[3px_3px_0px_0px_#030404] p-5 flex flex-col gap-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-xs font-black uppercase text-brand-pink tracking-widest flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-brand-pink border border-brand-ink inline-block" />
+                        Team Leaders
+                      </h3>
+                      <span className="text-[10px] font-black uppercase bg-brand-cloud border border-brand-ink px-2 py-0.5 rounded-md shadow-[1px_1px_0px_0px_#030404]">
+                        {selectedLeadersCount} Selected
+                      </span>
+                    </div>
 
-              {/* Selection Dropdown List */}
-              {showVolDropdown && selectedTeam && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setShowVolDropdown(false)} />
-                  <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-brand-ink rounded-md shadow-[4px_4px_0px_0px_#030404] max-h-56 overflow-y-auto z-20 divide-y divide-brand-ink/10">
-                    {filteredVolunteersForSelection.map((vol) => (
-                      <div
-                        key={vol.id}
-                        onClick={() => handleAddVolunteer(vol)}
-                        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-brand-cloud/60 text-xs font-bold text-brand-ink transition-colors"
-                      >
-                        <span>{vol.name}</span>
-                        <span className="text-[10px] uppercase font-black tracking-wider text-admin-muted">{vol.email}</span>
-                      </div>
-                    ))}
-                    {filteredVolunteersForSelection.length === 0 && (
-                      <div className="p-4 text-center text-xs font-bold text-admin-muted uppercase tracking-wider">
-                        No available volunteers found
-                      </div>
-                    )}
+                    {/* Search box for Leaders */}
+                    <div className="relative mb-1">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-ink/40" size={13} />
+                      <input
+                        type="text"
+                        placeholder="Search leader..."
+                        value={searchLeaderQuery}
+                        onChange={(e) => setSearchLeaderQuery(e.target.value)}
+                        className="w-full bg-brand-cloud/30 border-2 border-brand-ink rounded-md py-1.5 pl-8 pr-3 text-xs text-brand-ink font-bold placeholder:text-brand-ink/30 focus:outline-none focus:border-brand-pink focus:bg-white transition-colors"
+                      />
+                    </div>
+
+                    {/* Excel Grid Layout */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 p-3 border-2 border-brand-ink rounded-md bg-brand-cloud/10">
+                      {filteredLeaders.length > 0 ? (
+                        filteredLeaders.map((vol) => {
+                          const isAssigned = selectedVolunteers.some(v => v.id === vol.id);
+                          return (
+                            <button
+                              key={vol.id}
+                              type="button"
+                              onClick={() => toggleVolunteerSelection(vol)}
+                              className={`p-3 border-2 border-brand-ink text-[10px] font-black uppercase rounded-md text-center transition-all cursor-pointer shadow-[2px_2px_0px_0px_#030404] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-[1.5px_1.5px_0px_0px_#030404] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none min-h-[44px] flex items-center justify-center break-words leading-tight ${
+                                isAssigned 
+                                  ? 'bg-brand-pink text-white shadow-none translate-x-[1px] translate-y-[1px]'
+                                  : 'bg-white hover:bg-brand-cloud text-brand-ink'
+                              }`}
+                            >
+                              {vol.name}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="col-span-full py-6 text-center text-xs font-bold text-admin-muted uppercase tracking-wider">
+                          No leaders found
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </>
+
+                  {/* Right Column: Team Members */}
+                  <div className="bg-white border-2 border-brand-ink rounded-md shadow-[3px_3px_0px_0px_#030404] p-5 flex flex-col gap-3">
+                    <div className="flex justify-between items-center mb-1">
+                      <h3 className="text-xs font-black uppercase text-brand-blue tracking-widest flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 rounded-full bg-brand-blue border border-brand-ink inline-block" />
+                        Team Members
+                      </h3>
+                      <span className="text-[10px] font-black uppercase bg-brand-cloud border border-brand-ink px-2 py-0.5 rounded-md shadow-[1px_1px_0px_0px_#030404]">
+                        {selectedMembersCount} Selected
+                      </span>
+                    </div>
+
+                    {/* Search box for Members */}
+                    <div className="relative mb-1">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-brand-ink/40" size={13} />
+                      <input
+                        type="text"
+                        placeholder="Search member..."
+                        value={searchMemberQuery}
+                        onChange={(e) => setSearchMemberQuery(e.target.value)}
+                        className="w-full bg-brand-cloud/30 border-2 border-brand-ink rounded-md py-1.5 pl-8 pr-3 text-xs text-brand-ink font-bold placeholder:text-brand-ink/30 focus:outline-none focus:border-brand-pink focus:bg-white transition-colors"
+                      />
+                    </div>
+
+                    {/* Excel Grid Layout */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 p-3 border-2 border-brand-ink rounded-md bg-brand-cloud/10">
+                      {filteredMembers.length > 0 ? (
+                        filteredMembers.map((vol) => {
+                          const isAssigned = selectedVolunteers.some(v => v.id === vol.id);
+                          return (
+                            <button
+                              key={vol.id}
+                              type="button"
+                              onClick={() => toggleVolunteerSelection(vol)}
+                              className={`p-3 border-2 border-brand-ink text-[10px] font-black uppercase rounded-md text-center transition-all cursor-pointer shadow-[2px_2px_0px_0px_#030404] hover:translate-x-[0.5px] hover:translate-y-[0.5px] hover:shadow-[1.5px_1.5px_0px_0px_#030404] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none min-h-[44px] flex items-center justify-center break-words leading-tight ${
+                                isAssigned 
+                                  ? 'bg-brand-blue text-white shadow-none translate-x-[1px] translate-y-[1px]'
+                                  : 'bg-white hover:bg-brand-cloud text-brand-ink'
+                              }`}
+                            >
+                              {vol.name}
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="col-span-full py-6 text-center text-xs font-bold text-admin-muted uppercase tracking-wider">
+                          No members found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -818,12 +993,13 @@ export default function DutyManagement() {
               </div>
             </div>
 
-            {/* STEP 4: Venue & Notes */}
+            {/* STEP 4: Venue Selection */}
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="block text-[10px] font-black uppercase text-brand-ink/65 tracking-wider">
-                  Venue Selection
-                </label>
+              <label className="block text-[10px] font-black uppercase text-brand-ink/65 tracking-wider mb-2">
+                Venue Selection
+              </label>
+              <div className="space-y-1">
+                <span className="hidden md:block text-[10px] font-black text-transparent uppercase select-none">Spacer</span>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-ink/40" size={14} />
                   <select
@@ -833,9 +1009,23 @@ export default function DutyManagement() {
                     className="w-full bg-brand-cloud/45 border-2 border-brand-ink rounded-md py-2.5 pl-9 pr-4 text-xs text-brand-ink font-bold focus:outline-none focus:border-brand-pink focus:bg-white shadow-[2px_2px_0px_0px_#030404] transition-colors cursor-pointer"
                   >
                     <option value="">Choose Venue...</option>
-                    {venueOptions.map((ven) => (
-                      <option key={ven} value={ven}>{ven}</option>
-                    ))}
+                    {suggestedVenues.length > 0 && (
+                      <optgroup label="Suggested (Events in this Time Slot)">
+                        {suggestedVenues.map((ven) => (
+                          <option key={ven} value={ven}>{ven}</option>
+                        ))}
+                      </optgroup>
+                    )}
+                    <optgroup label="Standard Venues">
+                      {standardVenues.map((ven) => (
+                        <option key={ven} value={ven}>{ven}</option>
+                      ))}
+                    </optgroup>
+                    {isCustomVenue && (
+                      <optgroup label="Custom Venue">
+                        <option value={selectedVenue}>{selectedVenue}</option>
+                      </optgroup>
+                    )}
                   </select>
                 </div>
               </div>
@@ -899,7 +1089,7 @@ export default function DutyManagement() {
         </div>
         
         {/* Filter dropdowns */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="w-full md:w-auto grid grid-cols-2 gap-3 md:flex md:items-center">
           <div className="p-2.5 border-2 border-brand-ink bg-brand-cloud text-brand-ink rounded-md hidden md:block">
             <Filter size={16} />
           </div>
@@ -908,7 +1098,7 @@ export default function DutyManagement() {
           <select
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="bg-white border-2 border-brand-ink rounded-md py-2.5 px-3 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors"
+            className="w-full md:w-auto bg-white border-2 border-brand-ink rounded-md py-2.5 px-3 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors order-1 md:order-none"
           >
             <option value="">All Dates</option>
             {DUTY_DATES.map((dt) => (
@@ -920,7 +1110,7 @@ export default function DutyManagement() {
           <select
             value={teamFilter}
             onChange={(e) => setTeamFilter(e.target.value)}
-            className="bg-white border-2 border-brand-ink rounded-md md:py-3 md:px-4 py-2.5 px-3 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors w-[145px] md:w-auto"
+            className="w-full col-span-2 order-3 md:order-none md:col-auto bg-white border-2 border-brand-ink rounded-md md:py-3 md:px-4 py-2.5 px-3 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors md:w-auto"
           >
             <option value="all">All Teams</option>
             {dynamicTeams.map((teamName) => (
@@ -932,7 +1122,7 @@ export default function DutyManagement() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-white border-2 border-brand-ink rounded-md py-3 px-4 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors"
+            className="w-full order-2 md:order-none bg-white border-2 border-brand-ink rounded-md py-3 px-4 text-xs text-brand-ink font-black uppercase tracking-wider shadow-[2px_2px_0px_0px_#030404] focus:outline-none cursor-pointer hover:bg-brand-cloud transition-colors md:w-auto"
           >
             <option value="all">Status</option>
             <option value="upcoming">Upcoming</option>
@@ -950,42 +1140,42 @@ export default function DutyManagement() {
       ) : (
         <div className="bg-white border-4 border-brand-ink rounded-md shadow-[6px_6px_0px_0px_#030404] overflow-hidden flex flex-col">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse whitespace-nowrap">
+            <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-brand-cloud border-b-2 border-brand-ink text-brand-ink text-[10px] font-black uppercase tracking-widest">
-                  <th className="p-4">Volunteer Name</th>
-                  <th className="p-4">Team</th>
-                  <th className="p-4">Date</th>
-                  <th className="p-4">Time Window</th>
-                  <th className="p-4">Venue</th>
-                  <th className="p-4">Event</th>
-                  <th className="p-4 text-center">Status</th>
-                  <th className="p-4 text-right">Actions</th>
+                  <th className="p-4 max-w-[140px] whitespace-normal">Volunteer Name</th>
+                  <th className="p-4 max-w-[130px] whitespace-normal">Team</th>
+                  <th className="p-4 whitespace-normal">Date</th>
+                  <th className="p-4 whitespace-normal">Time Window</th>
+                  <th className="p-4 max-w-[150px] whitespace-normal">Venue</th>
+                  <th className="p-4 max-w-[200px] whitespace-normal">Event</th>
+                  <th className="p-4 text-center whitespace-normal">Status</th>
+                  <th className="p-4 text-right whitespace-normal">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-ink/10">
                 {filteredDuties.map((duty) => (
                   <tr key={duty.id} className="hover:bg-brand-cloud/45 transition-colors text-xs font-bold text-brand-ink">
-                    <td className="p-4 font-black">{duty.volunteerName}</td>
-                    <td className="p-4 text-brand-ink/90 font-semibold">{duty.team}</td>
-                    <td className="p-4 text-admin-muted font-bold">
+                    <td className="p-4 font-black max-w-[140px] whitespace-normal break-words">{duty.volunteerName}</td>
+                    <td className="p-4 text-brand-ink/90 font-semibold max-w-[130px] whitespace-normal break-words">{duty.team}</td>
+                    <td className="p-4 text-admin-muted font-bold whitespace-normal">
                       {formatDateFriendly(duty.dutyDate)}
                     </td>
-                    <td className="p-4 text-brand-ink/90 font-bold">
+                    <td className="p-4 text-brand-ink/90 font-bold whitespace-normal">
                       <div className="flex items-center gap-1.5">
                         <Clock size={12} className="text-brand-blue" />
                         <span>{formatTime12hr(duty.timeFrom)} - {formatTime12hr(duty.timeTo)}</span>
                       </div>
                     </td>
-                    <td className="p-4 text-brand-ink/90">
+                    <td className="p-4 text-brand-ink/90 max-w-[150px] whitespace-normal break-words">
                       <span className="inline-flex items-center gap-1">
                         <MapPin size={12} className="text-brand-orange" />
                         {duty.venue}
                       </span>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 max-w-[200px] whitespace-normal">
                       {duty.eventTitle ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-brand-blue/15 text-brand-blue border-2 border-brand-ink rounded-md text-[9px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_#030404] whitespace-normal max-w-[200px]">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-brand-blue/15 text-brand-blue border-2 border-brand-ink rounded-md text-[9px] font-black uppercase tracking-wider shadow-[1px_1px_0px_0px_#030404] whitespace-normal max-w-full break-words">
                           {duty.eventTitle}
                         </span>
                       ) : (
@@ -1145,9 +1335,23 @@ export default function DutyManagement() {
                 className="w-full bg-white border-2 border-brand-ink rounded-md py-2 px-3 text-xs font-bold text-brand-ink focus:outline-none focus:border-brand-pink shadow-[1px_1px_0px_0px_#030404] transition-colors cursor-pointer"
               >
                 <option value="">Choose Venue...</option>
-                {editVenueOptions.map((ven) => (
-                  <option key={ven} value={ven}>{ven}</option>
-                ))}
+                {editSuggestedVenues.length > 0 && (
+                  <optgroup label="Suggested (Events in this Time Slot)">
+                    {editSuggestedVenues.map((ven) => (
+                      <option key={ven} value={ven}>{ven}</option>
+                    ))}
+                  </optgroup>
+                )}
+                <optgroup label="Standard Venues">
+                  {editStandardVenues.map((ven) => (
+                    <option key={ven} value={ven}>{ven}</option>
+                  ))}
+                </optgroup>
+                {isEditCustomVenue && (
+                  <optgroup label="Custom Venue">
+                    <option value={editVenue}>{editVenue}</option>
+                  </optgroup>
+                )}
               </select>
             </div>
 
