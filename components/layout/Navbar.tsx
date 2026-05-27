@@ -42,6 +42,7 @@ export default function Navbar() {
   const navLinks = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/#about' },
+    { name: 'Rules', href: '/rules' },
     { name: 'Schedule', href: '/schedule' },
     { name: 'Speakers', href: '/speakers' },
     { name: 'Rules', href: '/rules' },
@@ -51,7 +52,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-5xl z-50 transition-all duration-300 rounded-full border ${isScrolled
+        className={`fixed top-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-6xl z-50 transition-all duration-300 rounded-full border ${isScrolled
           ? 'bg-brand-ink/80 backdrop-blur-xl border-brand-pink/30 py-2.5 px-6 shadow-[0_8px_32px_rgba(255,24,140,0.15)] shadow-brand-pink/10'
           : 'bg-brand-ink/40 backdrop-blur-md border-brand-cloud/10 py-3.5 px-6 shadow-lg'
           }`}
@@ -95,7 +96,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <Link
               href="/register"
-              className={`relative group overflow-hidden rounded-full py-2 px-5 font-display font-bold text-xs uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 ${pathname?.startsWith('/register')
+              className={`relative group overflow-hidden shrink-0 rounded-full py-2 px-5 font-display font-bold text-xs uppercase tracking-wider transition-all duration-300 hover:scale-105 active:scale-95 ${pathname?.startsWith('/register')
                 ? 'text-brand-cloud bg-brand-blue shadow-[0_4px_12px_rgba(13,33,221,0.4)]'
                 : 'text-brand-cloud bg-brand-pink shadow-[0_4px_12px_rgba(255,24,140,0.3)] hover:shadow-[0_4px_20px_rgba(255,24,140,0.5)]'
                 }`}

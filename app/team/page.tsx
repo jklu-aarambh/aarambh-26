@@ -13,6 +13,7 @@ import {
 import { TEAM_DATA, TeamMember } from '@/constants/team';
 import ChromaGrid, { ChromaItem } from '@/components/ui/ChromaGrid';
 import Image from 'next/image';
+import DoodleBg from '@/components/ui/DoodleBg';
 
 interface SectionHeadingProps {
   label: string;
@@ -37,28 +38,6 @@ function SectionHeading({ label, sub, accent }: SectionHeadingProps) {
 }
 
 export default function TeamPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDept, setSelectedDept] = useState('All');
-
-  // List of departments for filtering Team Leaders
-  const departments = useMemo(() => {
-    const depts = new Set<string>();
-    TEAM_DATA.teamLeaders.forEach(tl => {
-      if (tl.department) depts.add(tl.department);
-    });
-    return ['All', ...Array.from(depts)];
-  }, []);
-
-  // Filter Team Leaders
-  const filteredTeamLeaders = useMemo(() => {
-    return TEAM_DATA.teamLeaders.filter(tl => {
-      const matchesSearch = tl.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            tl.designation.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesDept = selectedDept === 'All' || tl.department === selectedDept;
-      return matchesSearch && matchesDept;
-    });
-  }, [searchQuery, selectedDept]);
-
   // Helper to map member to chroma item
   const mapMemberToChromaItem = (member: TeamMember, type: 'vc' | 'osa' | 'orgHead' | 'tl'): ChromaItem => {
     let borderColor = '#F5F1E5'; // default brand.white/cloud
@@ -108,14 +87,58 @@ export default function TeamPage() {
 
   const vcItem = useMemo(() => [mapMemberToChromaItem(TEAM_DATA.vc, 'vc')], []);
   const osaItems = useMemo(() => TEAM_DATA.osa.map(m => mapMemberToChromaItem(m, 'osa')), []);
-  const tlItems = useMemo(() => filteredTeamLeaders.map(m => mapMemberToChromaItem(m, 'tl')), [filteredTeamLeaders]);
+
+  // Group team leaders into committees and cluster heads
+  const groupedTeamLeaders = useMemo(() => {
+    const groups: { heading: string; items: TeamMember[] }[] = [
+      { heading: "Cluster Heads", items: [] },
+      { heading: "Technical Committee", items: [] },
+      { heading: "Design Committee", items: [] },
+      { heading: "Photography Committee", items: [] },
+      { heading: "Media & Social Media Committee", items: [] },
+      { heading: "Food & Accommodation Committee", items: [] },
+      { heading: "Discipline Committee", items: [] },
+      { heading: "Internal Arrangements Committee", items: [] },
+      { heading: "Feedback & Registration Committee", items: [] },
+    ];
+
+    TEAM_DATA.teamLeaders.forEach(member => {
+      const dept = member.department || "";
+      if (dept === "Cluster Head") {
+        groups[0].items.push(member);
+      } else if (dept === "Technical") {
+        groups[1].items.push(member);
+      } else if (dept === "Design") {
+        groups[2].items.push(member);
+      } else if (dept === "Photography") {
+        groups[3].items.push(member);
+      } else if (dept === "Media" || dept === "Social Media") {
+        groups[4].items.push(member);
+      } else if (dept === "Food & Accommodation") {
+        groups[5].items.push(member);
+      } else if (dept === "Discipline") {
+        groups[6].items.push(member);
+      } else if (dept === "Internal Arrangements") {
+        groups[7].items.push(member);
+      } else if (dept === "Feedback & Registration") {
+        groups[8].items.push(member);
+      }
+    });
+
+    return groups.filter(g => g.items.length > 0);
+  }, []);
 
   return (
-    <div className="py-28 px-4 md:px-6 max-w-7xl mx-auto min-h-screen relative overflow-hidden">
+    <div className="relative w-full min-h-screen overflow-hidden">
+      {/* Background Doodle Pattern */}
+      <DoodleBg />
+
       {/* Decorative Background Glows */}
-      <div className="hero-glow w-[500px] h-[500px] bg-brand-orange/10 -top-20 left-1/4" />
-      <div className="hero-glow w-[400px] h-[400px] bg-brand-pink/10 top-1/3 -right-20" />
-      <div className="hero-glow w-[600px] h-[600px] bg-brand-blue/10 bottom-0 -left-20" />
+      <div className="hero-glow w-[500px] h-[500px] bg-brand-orange/10 -top-20 left-1/4 z-0" />
+      <div className="hero-glow w-[400px] h-[400px] bg-brand-pink/10 top-1/3 -right-20 z-0" />
+      <div className="hero-glow w-[600px] h-[600px] bg-brand-blue/10 bottom-0 -left-20 z-0" />
+
+      <div className="py-28 px-4 md:px-6 max-w-7xl mx-auto relative z-10">
 
       {/* Header */}
       <header className="text-center mb-24 relative z-10">
@@ -513,63 +536,37 @@ export default function TeamPage() {
 
         {/* Tier 4: Team Leaders */}
         <section className="flex flex-col items-center pt-8 border-t border-brand-ink/10 w-full">
-          <div className="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
-            <div className="text-left">
-              <h2 className="text-2xl font-display font-bold text-brand-ink flex items-center gap-2">
-                <Users className="text-brand-blue" size={24} /> Core Team Members
-              </h2>
-              <p className="text-sm text-brand-ink/60 mt-1">
-                Showing {filteredTeamLeaders.length} of {TEAM_DATA.teamLeaders.length} coordinators
-              </p>
-            </div>
-
-            {/* Controls */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-center">
-              {/* Search Bar */}
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brand-ink/40" size={18} />
-                <input
-                  type="text"
-                  placeholder="Search team leaders..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-brand-ink/5 border border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-pink/60 rounded-full pl-10 pr-4 py-2.5 text-sm text-brand-ink placeholder-brand-ink/40 outline-none transition-all"
-                />
-              </div>
-
-              {/* Department Dropdown Filter */}
-              <div className="relative w-full sm:w-48">
-                <select
-                  value={selectedDept}
-                  onChange={(e) => setSelectedDept(e.target.value)}
-                  className="w-full appearance-none bg-brand-ink/5 border border-brand-ink/15 hover:border-brand-ink/30 focus:border-brand-pink/60 rounded-full px-5 py-2.5 text-sm text-brand-ink outline-none transition-all cursor-pointer"
-                >
-                  {departments.map((dept) => (
-                    <option key={dept} value={dept} className="bg-brand-cloud text-brand-ink">
-                      {dept === 'All' ? 'All Departments' : dept}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-ink/40 pointer-events-none" size={16} />
-              </div>
-            </div>
+          <div className="w-full text-center mb-16">
+            <h2 className="text-3xl font-display font-black text-brand-ink flex items-center justify-center gap-2 uppercase tracking-wide">
+              <Users className="text-brand-pink" size={28} /> Team Leaders
+            </h2>
+            <p className="text-sm text-brand-ink/60 mt-2 font-mono uppercase tracking-wider">
+              Coordinators of Aarambh &apos;26 by Committee
+            </p>
           </div>
 
-          {/* Team Leaders Grid */}
-          <div className="w-full relative min-h-[400px]">
-            {filteredTeamLeaders.length > 0 ? (
-              <ChromaGrid items={tlItems} radius={500} />
-            ) : (
-              <div 
-                className="py-16 text-center text-brand-ink/50 text-lg border border-dashed border-brand-ink/15 rounded-2xl bg-brand-ink/[0.02] w-full"
-              >
-                No team leaders found matching &apos;{searchQuery}&apos; in {selectedDept === 'All' ? 'all departments' : selectedDept}.
-              </div>
-            )}
+          {/* Grouped Committees */}
+          <div className="w-full space-y-16">
+            {groupedTeamLeaders.map((group) => {
+              const mappedItems = group.items.map(m => mapMemberToChromaItem(m, 'tl'));
+              return (
+                <div key={group.heading} className="w-full relative">
+                  <div className="flex items-center gap-4 mb-8">
+                    <span className="w-4.5 h-4.5 rounded-md border-2 border-brand-ink bg-brand-pink shrink-0 shadow-comic-sm" />
+                    <h3 className="text-lg sm:text-xl font-display font-black uppercase text-brand-ink tracking-wide">
+                      {group.heading}
+                    </h3>
+                    <div className="h-[2px] bg-brand-ink/10 flex-grow" />
+                  </div>
+                  <ChromaGrid items={mappedItems} radius={500} />
+                </div>
+              );
+            })}
           </div>
         </section>
 
       </div>
     </div>
+  </div>
   );
 }
