@@ -100,6 +100,7 @@ walkthrough.md
 public/photos/*.JPG
 raw_gallery*.html
 compress.cjs
+scripts/*.cjs
 photos_temp.json
 **/*.JPG
 

@@ -1,7 +1,7 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, AnimatePresence, Variants, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
 import Link from 'next/link';
@@ -35,6 +35,12 @@ function TornPaperDivider({ color = "fill-brand-ink", flip = false }: { color?: 
     </div>
   );
 }
+
+const SparkleStar = ({ className, size = 32 }: { className?: string; size?: number }) => (
+  <svg viewBox="0 0 100 100" width={size} height={size} className={className} fill="currentColor">
+    <path d="M50 0 C50 35, 65 50, 100 50 C65 50, 50 65, 50 100 C50 65, 35 50, 0 50 C35 50, 50 35, 50 0 Z" />
+  </svg>
+);
 
 const marqueeVariants: Variants = {
   animate: {
@@ -455,6 +461,49 @@ const col4Images = PHOTOS.slice(48, 64).map(p => p.src);
 export default function Home() {
   const router = useRouter();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Mouse coordinates tracking for smooth parallax depth
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const springX = useSpring(mouseX, { stiffness: 60, damping: 22 });
+  const springY = useSpring(mouseY, { stiffness: 60, damping: 22 });
+
+  // Parallax drifts for background outlined text / images
+  const bgTextX1 = useTransform(springX, [-0.5, 0.5], [60, -60]);
+  const bgTextY1 = useTransform(springY, [-0.5, 0.5], [30, -30]);
+  
+  const bgTextX2 = useTransform(springX, [-0.5, 0.5], [-60, 60]);
+  const bgTextY2 = useTransform(springY, [-0.5, 0.5], [-30, 30]);
+
+  // Skateboarder frame 3D drift coordinates
+  const logoRotateX = useTransform(springY, [-0.5, 0.5], [10, -10]);
+  const logoRotateY = useTransform(springX, [-0.5, 0.5], [-10, 10]);
+  const logoX = useTransform(springX, [-0.5, 0.5], [-20, 20]);
+  const logoY = useTransform(springY, [-0.5, 0.5], [-20, 20]);
+
+  // Y2K Sparkle Stars parallax drifts
+  const starX1 = useTransform(springX, [-0.5, 0.5], [35, -35]);
+  const starY1 = useTransform(springY, [-0.5, 0.5], [25, -25]);
+  const starX2 = useTransform(springX, [-0.5, 0.5], [-45, 45]);
+  const starY2 = useTransform(springY, [-0.5, 0.5], [-15, 15]);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const normalizedX = (e.clientX - rect.left) / rect.width - 0.5;
+    const normalizedY = (e.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(normalizedX);
+    mouseY.set(normalizedY);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
+
+
   const [galleryMounted, setGalleryMounted] = useState(false);
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, mins: 0, secs: 0 });
   const [particles, setParticles] = useState<Particle[]>([]);
@@ -564,11 +613,52 @@ export default function Home() {
   }, []);
 
   const stickers = [
-    { text: "BOOM!", type: "boom", color: "bg-brand-pink text-brand-cloud", top: "12%", left: "6%", starburst: true, rotate: "-8deg" },
-    { text: "POW!", type: "pow", color: "bg-brand-orange text-brand-ink font-extrabold", top: "15%", right: "8%", starburst: true, rotate: "6deg" },
-    { text: "BANG!", type: "bang", color: "bg-brand-blue text-brand-cloud", bottom: "25%", left: "8%", starburst: true, rotate: "-12deg" },
-    { text: "APPROVED", type: "stamp", subtext: "BY THE SQUAD", color: "bg-brand-cloud text-brand-pink border-4 border-dashed border-brand-pink", bottom: "22%", right: "8%", stamp: true, rotate: "15deg" },
+    {
+      src: "/images/july_14_21.png",
+      alt: "14-21 July Sticker",
+      type: "stamp",
+      top: "16%",
+      right: "6%",
+      width: 220,
+      height: 220,
+      rotate: "6deg",
+      floatDelay: 0.7,
+    },
+    {
+      src: "/images/edition_2026.png?v=5",
+      alt: "2026 Edition Sticker",
+      type: "pow",
+      top: "14%",
+      left: "5%",
+      width: 230,
+      height: 230,
+      rotate: "-8deg",
+      floatDelay: 0,
+    },
+    {
+      src: "/images/first_step.png",
+      alt: "First Step Sticker",
+      type: "bang",
+      bottom: "23%",
+      left: "6%",
+      width: 240,
+      height: 120,
+      rotate: "-5deg",
+      floatDelay: 1.4,
+    },
+    {
+      src: "/images/next_dimension.png?v=4",
+      alt: "Next Dimension Sticker",
+      type: "boom",
+      bottom: "20%",
+      right: "6%",
+      width: 260,
+      height: 130,
+      rotate: "7deg",
+      floatDelay: 2.1,
+    },
   ];
+
 
   const countdownBlocks = [
     { label: 'Days', valueKey: 'days', bg: 'bg-brand-orange text-brand-ink', rotate: '-rotate-2' },
@@ -635,7 +725,7 @@ export default function Home() {
                         }}
                       >
                         <Image
-                          src="/logo.svg"
+                          src="/aarambh_logo_extruded.png"
                           alt="AARAMBH"
                           fill
                           className="object-contain"
@@ -715,22 +805,76 @@ export default function Home() {
       </div>
 
       {/* Comic Magazine Cover Hero */}
-      <section className="relative w-full min-h-screen flex flex-col items-center justify-center py-28 px-4 overflow-hidden bg-brand-cloud text-brand-ink">
+      <section 
+        className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-brand-cloud text-brand-ink selection:bg-brand-pink selection:text-brand-cloud p-4 md:p-8"
+      >
+        {/* Outer Inset Frame Border */}
+        <div className="absolute inset-4 pointer-events-none border border-brand-ink/15 z-40 hidden md:block" />
 
-        {/* Comic Pattern Backdrop */}
-        <div className="absolute inset-0 bg-halftone-black opacity-30 pointer-events-none" />
+        {/* Noise overlay and grid ticks */}
+        <div className="absolute inset-0 bg-halftone-black opacity-[0.03] pointer-events-none z-0" />
 
-        {/* Abstract comic background shapes */}
-        <div className="absolute top-12 left-12 w-64 h-64 bg-brand-pink/15 rounded-full blur-[80px] pointer-events-none" />
-        <div className="absolute bottom-20 right-20 w-[450px] h-[450px] bg-brand-orange/15 rounded-full blur-[100px] pointer-events-none" />
+        {/* Top Header Spacing / Metadata */}
+        <div className="w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] mx-auto py-3 border-b border-brand-ink/10 bg-transparent text-brand-ink/70 overflow-hidden z-30 mt-4 md:mt-2 flex justify-between items-center text-[9px] font-mono tracking-[0.2em]">
+          <span>JK LAKSHMIPAT UNIVERSITY</span>
+          <span>AARAMBH &apos;26 PORTAL</span>
+        </div>
 
-        {/* Huge Tilted AARAMBH 26 Watermark */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden z-0">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -rotate-12 w-[120vw] text-center opacity-[0.04]">
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: 'clamp(3rem, 8vw, 8rem)', fontWeight: 900, color: '#030404', lineHeight: 0.8, letterSpacing: '-0.02em', whiteSpace: 'nowrap' }}>
-              AARAMBH&apos;26
-            </h1>
+
+        {/* Full-bleed Translucent Fluid Alcohol Ink Background with mouse warp distortion */}
+        <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden select-none">
+          <div
+            className="absolute inset-0 w-full h-full"
+          >
+            <motion.div
+              animate={{
+                y: [0, -35, 25, -25, 15, -15, 0],
+                x: [0, 20, -20, 15, -15, 8, 0],
+                skewX: [0, 4, -4, 2.5, -2.5, 1.2, 0],
+                skewY: [0, 2, -2, 1.2, -1.2, 0.6, 0],
+                scale: [1.02, 1.08, 1.01, 1.06, 1.02],
+              }}
+              transition={{
+                duration: 12,
+                repeat: Infinity,
+                repeatType: "reverse",
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 w-full h-full"
+            >
+              <Image
+                src="/images/translucent_fluid_ink.png"
+                alt="Translucent Fluid Alcohol Ink background"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover opacity-65 scale-[1.08] filter brightness-[1.01] contrast-[0.99]"
+              />
+            </motion.div>
           </div>
+          {/* Subtle radial gradient overlay to ensure central text readability & keep margins textured */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(245,241,229,0.75)_0%,rgba(245,241,229,0.1)_100%)] pointer-events-none" />
+        </div>
+
+        {/* Floating abstract Y2K Sparkle Stars (Drifts dynamically with cursor) */}
+        <div className="absolute inset-0 pointer-events-none z-20 hidden md:block select-none">
+          {/* Star 1: Bold Pink */}
+          <motion.div
+            animate={{ rotate: [0, 360], scale: [1, 1.12, 1] }}
+            transition={{ rotate: { repeat: Infinity, duration: 25, ease: "linear" }, scale: { repeat: Infinity, duration: 6, ease: "easeInOut" } }}
+            className="absolute top-[20%] left-[28%] text-brand-pink/70"
+          >
+            <SparkleStar size={36} />
+          </motion.div>
+
+          {/* Star 2: Electric Blue */}
+          <motion.div
+            animate={{ rotate: [360, 0], scale: [1, 1.15, 1] }}
+            transition={{ rotate: { repeat: Infinity, duration: 20, ease: "linear" }, scale: { repeat: Infinity, duration: 5, ease: "easeInOut" } }}
+            className="absolute bottom-[28%] right-[32%] text-brand-blue"
+          >
+            <SparkleStar size={48} />
+          </motion.div>
         </div>
 
         {/* Draggable Pop-Art Stickers with synthesized audio triggers */}
@@ -739,10 +883,43 @@ export default function Home() {
             <motion.div
               key={idx}
               drag
-              dragConstraints={{ left: -400, right: 400, top: -200, bottom: 200 }}
+              dragConstraints={{ left: -300, right: 300, top: -150, bottom: 150 }}
               dragTransition={{ bounceStiffness: 600, bounceDamping: 25 }}
-              whileHover={{ scale: 1.15, zIndex: 50, rotate: "0deg" }}
-              whileDrag={{ scale: 1.2, zIndex: 100, cursor: "grabbing" }}
+              initial={{
+                filter: "drop-shadow(3px 12px 18px rgba(3, 4, 4, 0.15)) drop-shadow(1px 4px 6px rgba(3, 4, 4, 0.08))"
+              }}
+              animate={{
+                y: [0, -6, 0],
+                rotate: [sticker.rotate, (parseFloat(sticker.rotate) + 1.5) + "deg", sticker.rotate],
+              }}
+              transition={{
+                y: {
+                  duration: 4.5 + idx * 0.8,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut",
+                  delay: sticker.floatDelay,
+                },
+                rotate: {
+                  duration: 5.5 + idx * 0.6,
+                  repeat: Infinity,
+                  repeatType: "reverse",
+                  ease: "easeInOut",
+                  delay: sticker.floatDelay,
+                }
+              }}
+              whileHover={{
+                scale: 1.05,
+                y: -12,
+                zIndex: 50,
+                filter: "drop-shadow(8px 24px 32px rgba(3, 4, 4, 0.22)) drop-shadow(2px 8px 12px rgba(3, 4, 4, 0.12))",
+                transition: { type: "spring", stiffness: 300, damping: 15 }
+              }}
+              whileDrag={{
+                scale: 1.1,
+                zIndex: 100,
+                filter: "drop-shadow(12px 36px 48px rgba(3, 4, 4, 0.26)) drop-shadow(4px 12px 18px rgba(3, 4, 4, 0.15))"
+              }}
               onDragStart={(e) => {
                 // Synthesizes retro sounds when dragging begins
                 playSynthSound(sticker.type as any);
@@ -757,106 +934,95 @@ export default function Home() {
                 left: sticker.left,
                 right: sticker.right,
                 bottom: sticker.bottom,
-                rotate: sticker.rotate,
               }}
               className="absolute pointer-events-auto cursor-grab select-none"
             >
-              {sticker.starburst ? (
-                <div className={`comic-starburst w-36 h-36 border-4 border-brand-ink flex flex-col items-center justify-center text-center p-4 shadow-comic ${sticker.color}`}>
-                  <span className="font-display font-black text-xl leading-none uppercase tracking-tighter drop-shadow-md">
-                    {sticker.text}
-                  </span>
-                </div>
-              ) : sticker.stamp ? (
-                <div className={`w-28 h-28 rounded-full flex flex-col items-center justify-center text-center p-3 rotate-12 shadow-comic-sm bg-brand-cloud ${sticker.color}`}>
-                  <span className="font-display font-black text-xs leading-none uppercase tracking-tighter">
-                    {sticker.text}
-                  </span>
-                  <span className="text-[7px] font-black uppercase mt-1 tracking-widest leading-none">
-                    {sticker.subtext}
-                  </span>
-                </div>
-              ) : (
-                <div className={`px-5 py-3 font-display font-black text-sm uppercase rounded-md border-2 border-brand-ink ${sticker.color}`}>
-                  {sticker.text}
-                </div>
-              )}
+              <div 
+                className="relative overflow-hidden rounded-xl" 
+                style={{ width: sticker.width, height: sticker.height }}
+              >
+                <Image
+                  src={sticker.src}
+                  alt={sticker.alt}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+                {/* Premium Paper Grain overlay */}
+                <div 
+                  className="absolute inset-0 pointer-events-none opacity-[0.08] mix-blend-overlay"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+                  }}
+                />
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* Hero Content Panel */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="z-10 text-center max-w-4xl flex flex-col items-center px-4"
-        >
-          {/* Comic Magazine Header Band */}
-          <div className="border-comic bg-brand-ink text-brand-cloud px-6 py-2.5 font-display text-xs font-black tracking-[0.25em] uppercase shadow-comic -rotate-1 mb-10 bg-halftone-cloud">
-            JK LAKSHMIPAT UNIVERSITY PRESENTS
-          </div>
+        {/* Main Content Container */}
+        <div className="w-full flex-grow flex flex-col items-center justify-center z-20 py-12 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="text-center max-w-4xl flex flex-col items-center px-4 w-full"
+          >
 
-          {/* Comic Styled Heading Stack */}
-          <div className="relative mb-6 sm:mb-8 select-none p-2 sm:p-3 max-w-full text-center flex justify-center">
-            {/* Outline back text */}
-            <h1 className="font-display text-5xl sm:text-7xl md:text-[6.5rem] lg:text-[8rem] font-black uppercase leading-[1.1] sm:leading-none tracking-tighter text-outline-pink select-none break-words max-w-[95vw]">
-              BOLD & BEYOND
-            </h1>            {/* Centered Primary Logo */}
-            <div className="absolute inset-0 flex items-center justify-center p-2 mt-2 z-20 perspective-[1500px]">
-              <div className="relative w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl group">
-                {/* Base logo card with drop shadow */}
-                <div className="relative z-10 w-full bg-brand-cloud border-comic rounded-xl p-4 sm:p-8 drop-shadow-[6px_6px_0px_#030404] sm:drop-shadow-[10px_10px_0px_#030404] flex items-center justify-center perspective-[1500px] transform-style-3d min-h-[100px] sm:min-h-[200px] md:min-h-[260px]">
-                                    {loadingComplete && (
-                    <>
-                      {/* Logo Container Fill Animation */}
-                      <div className="relative w-full aspect-[550/120] z-20 pointer-events-none flex items-center justify-center">
-                        
-                        {/* Empty Container Logo (Grayscale/Faded) */}
+          <div className="mb-6 sm:mb-8 select-none p-2 sm:p-3 max-w-full text-center flex justify-center w-full">
+            {/* Centered Primary Logo */}
+            <div className="relative w-full max-w-xs sm:max-w-lg md:max-w-2xl lg:max-w-3xl group z-20 perspective-[1500px]">
+              {/* Base logo container (no card background, border, or drop shadow) */}
+              <div className="relative z-10 w-full flex items-center justify-center perspective-[1500px] transform-style-3d min-h-[100px] sm:min-h-[200px] md:min-h-[260px]">
+                {loadingComplete && (
+                  <>
+                    {/* Logo Container Fill Animation */}
+                    <div className="relative w-full aspect-[550/120] z-20 pointer-events-none flex items-center justify-center">
+                      
+                      {/* Empty Container Logo (Outline version) */}
+                      <Image 
+                         src="/aarambh_logo_outline.png" 
+                         alt="" 
+                         fill 
+                         className="object-contain" 
+                         priority
+                      />
+                      
+                      <motion.div
+                        initial={{ clipPath: 'circle(0% at 50% 50%)', WebkitClipPath: 'circle(0% at 50% 50%)' } as any}
+                        animate={{ clipPath: 'circle(150% at 50% 50%)', WebkitClipPath: 'circle(150% at 50% 50%)' } as any}
+                        transition={{ duration: 4.0, ease: "easeInOut", delay: 0.5 }}
+                        className="absolute inset-0 w-full h-full"
+                      >
                         <Image 
-                           src="/logo.svg" 
-                           alt="" 
+                           src="/aarambh_logo_extruded.png" 
+                           alt="AARAMBH'26" 
                            fill 
-                           className="object-contain filter grayscale opacity-20 drop-shadow-[2px_2px_0_#030404]" 
+                           className="object-contain" 
+                           priority 
+                           loading="eager" 
                         />
-                        
-                        {/* The Fill Animation (Original Logo Colors) */}
-                        <motion.div
-                          initial={{ clipPath: 'inset(100% 0% 0% 0%)' }}
-                          animate={{ clipPath: 'inset(0% 0% 0% 0%)' }}
-                          transition={{ duration: 4.0, ease: "easeInOut", delay: 0.5 }}
-                          className="absolute inset-0 w-full h-full"
-                        >
-                          <Image 
-                             src="/logo.svg" 
-                             alt="AARAMBH'26" 
-                             fill 
-                             className="object-contain filter drop-shadow-[6px_6px_0_#030404]" 
-                             priority 
-                             loading="eager" 
-                          />
-                        </motion.div>
-                        
-                        {/* Final Pop & Glow */}
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 1] }}
-                          transition={{ delay: 4.5, duration: 0.6 }}
-                          className="absolute inset-0 bg-brand-pink blur-[30px] mix-blend-screen pointer-events-none"
-                        />
-                        
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 1.5] }}
-                          transition={{ delay: 4.5, duration: 0.8 }}
-                          className="absolute top-0 -right-2 text-brand-orange z-30"
-                        >
-                          <Sparkles size={40} />
-                        </motion.div>
-                      </div>
-                    </>
-                  )}
-                </div>
+                      </motion.div>
+                      
+                      {/* Final Pop & Glow */}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: [0, 1, 0], scale: [0.8, 1.2, 1] }}
+                        transition={{ delay: 4.5, duration: 0.6 }}
+                        className="absolute inset-0 bg-brand-pink blur-[30px] mix-blend-screen pointer-events-none"
+                      />
+                      
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: [0, 1, 0], scale: [0.5, 1.2, 1.5] }}
+                        transition={{ delay: 4.5, duration: 0.8 }}
+                        className="absolute top-0 -right-2 text-brand-orange z-30"
+                      >
+                        <Sparkles size={40} />
+                      </motion.div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -899,7 +1065,14 @@ export default function Home() {
           </div>
 
         </motion.div>
-      </section>
+      </div>
+
+      {/* Bottom Footer Spacing / Metadata */}
+      <div className="w-[calc(100%-2rem)] md:w-[calc(100%-4rem)] mx-auto py-3 border-t border-brand-ink/10 bg-transparent text-brand-ink/60 overflow-hidden z-20 mt-6 flex justify-between items-center text-[9px] font-mono tracking-[0.2em]">
+        <span>⚡ BOLD & BEYOND</span>
+        <span>JULY 14-17 // JKLU</span>
+      </div>
+    </section>
 
       {/* Torn paper visual separation */}
       <TornPaperDivider color="fill-brand-ink" />
