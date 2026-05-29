@@ -23,7 +23,7 @@ export const TEAM_DATA = {
       email: "vc@jklu.edu.in"
     }
   } as TeamMember,
-  
+
   osa: [
     {
       name: "Deepak Sogani",
@@ -172,8 +172,13 @@ export const TEAM_DATA = {
       name: "Yash Bansal",
       designation: "Technical Lead",
       department: "Technical",
-      photo: undefined,
-      socials: {}
+      photo: "/Team Photos/Team Leaders/yashbansal.webp?v=5",
+      socials: {
+        linkedin: "https://www.linkedin.com/in/yashbansal05",
+        email: "yashbansal@jklu.edu.in",
+        instagram: "https://www.instagram.com/yashbansal.05",
+        github: "https://github.com/yashbansal-dev"
+      }
     },
     {
       name: "Varra Srivalli",
@@ -461,18 +466,9 @@ export const TEAM_DATA = {
       name: "Parth Bhardwaj",
       designation: "Event & Venue Lead",
       department: "Event & Venue",
-      photo: "",
+      photo: "/Team Photos/Team Leaders/Parth Bhardwaj.webp",
       socials: {
         email: "parthbhardwaj@jklu.edu.in"
-      }
-    },
-    {
-      name: "Yash Bansal",
-      designation: "Technical Lead",
-      department: "Technical",
-      photo: "",
-      socials: {
-        email: "yashbansal@jklu.edu.in"
       }
     }
   ] as TeamMember[]

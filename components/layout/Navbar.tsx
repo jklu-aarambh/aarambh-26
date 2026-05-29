@@ -46,6 +46,7 @@ export default function Navbar() {
     { name: 'Speakers', href: '/speakers' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'Team', href: '/team' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Contact', href: '/contact' },
   ];
 

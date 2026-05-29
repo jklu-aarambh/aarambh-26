@@ -217,11 +217,13 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
 
   const data = items !== undefined ? items : demo;
 
-  const gridColsClass = data.length === 2 
-    ? 'grid-cols-2 w-full max-w-[680px]' 
-    : data.length === 3 
-      ? 'grid-cols-2 md:grid-cols-3 w-full max-w-[1000px]'
-      : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full';
+  const gridColsClass = data.length === 1
+    ? 'grid-cols-1 w-full max-w-[320px]'
+    : data.length === 2 
+      ? 'grid-cols-2 w-full max-w-[680px]' 
+      : data.length === 3 
+        ? 'grid-cols-2 md:grid-cols-3 w-full max-w-[1000px]'
+        : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full';
 
   return (
     <div
@@ -361,7 +363,13 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
                       href={item.href}
                       target={item.isMailto ? undefined : '_blank'}
                       rel={item.isMailto ? undefined : 'noopener noreferrer'}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.isMailto) {
+                          e.preventDefault();
+                          window.location.href = item.href;
+                        }
+                      }}
                       className="w-8 h-8 text-white/70 hover:bg-[var(--hover-color)] hover:text-[#030404] hover:shadow-[0px_0px_8px_var(--hover-color)] transition-all rounded flex justify-center items-center cursor-pointer"
                       style={{ '--hover-color': c.borderColor || '#FF188C' } as React.CSSProperties}
                       aria-label={item.label}
@@ -480,7 +488,13 @@ const ChromaGrid: React.FC<ChromaGridProps> = ({
                       href={item.href}
                       target={item.isMailto ? undefined : '_blank'}
                       rel={item.isMailto ? undefined : 'noopener noreferrer'}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (item.isMailto) {
+                          e.preventDefault();
+                          window.location.href = item.href;
+                        }
+                      }}
                       className="w-8 h-8 xs:w-9 xs:h-9 border text-white hover:bg-white hover:text-black transition-all rounded flex justify-center items-center cursor-pointer animate-fadeIn"
                       style={{ borderColor: c.borderColor || '#FF188C' }}
                       aria-label={item.label}

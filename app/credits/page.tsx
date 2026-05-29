@@ -155,7 +155,7 @@ const LEADERS: TeamMember[] = [
   },
   {
     id: "2",
-    name: "yash bansal",
+    name: "Yash Bansal",
     role: "CORE LEADER",
     tagline: "Interaction Architect & Design Wizard",
     bio: "Pixel-perfect designer creating high-fidelity interactive layouts and neobrutalist grids.",
@@ -166,17 +166,19 @@ const LEADERS: TeamMember[] = [
       "Implemented responsive global component grids and animations",
       "Developed high-fidelity page transitions and micro-interaction states"
     ],
-    image: "/tech_placeholder.png",
+    image: "/Team Photos/Team Leaders/yashbansal_standing.webp?v=5",
     themeColor: "from-[#FF9A00] via-orange-500 to-[#FF188C]",
     glowColor: "rgba(251, 191, 36, 0.25)",
     accentColor: "#fbbf24",
     icon: <Sparkles className="w-4 h-4" />,
     socials: {
-      github: "https://github.com",
-      linkedin: "https://linkedin.com",
-      instagram: "https://instagram.com",
-      email: "mailto:devam@jklu.edu.in"
+      github: "https://github.com/yashbansal-dev",
+      linkedin: "https://www.linkedin.com/in/yashbansal05",
+      instagram: "https://www.instagram.com/yashbansal.05",
+      email: "mailto:yashbansal@jklu.edu.in"
     },
+    imageScale: "scale(1.02)",
+    imagePosition: "translateY(48px)",
     bgColor: "bg-[#fbbf24]"
   }
 ];
@@ -591,7 +593,7 @@ function TeamMemberCard({
             if (effectIndex === 0) {
               // Comic Sunburst Rays
               return (
-                <div 
+                <div
                   className="absolute inset-0 opacity-[0.16] group-hover:opacity-[0.24] transition-opacity duration-300 pointer-events-none"
                   style={{
                     backgroundImage: 'conic-gradient(from 0deg at 50% 50%, #fff 0deg 10deg, transparent 10deg 20deg, #fff 20deg 30deg, transparent 30deg 40deg, #fff 40deg 50deg, transparent 50deg 60deg, #fff 60deg 70deg, transparent 70deg 80deg, #fff 80deg 90deg, transparent 90deg 100deg, #fff 100deg 110deg, transparent 110deg 120deg, #fff 120deg 130deg, transparent 130deg 140deg, #fff 140deg 150deg, transparent 150deg 160deg, #fff 160deg 170deg, transparent 170deg 180deg, #fff 180deg 190deg, transparent 190deg 200deg, #fff 200deg 210deg, transparent 210deg 220deg, #fff 220deg 230deg, transparent 230deg 240deg, #fff 240deg 250deg, transparent 250deg 260deg, #fff 260deg 270deg, transparent 270deg 280deg, #fff 280deg 290deg, transparent 290deg 300deg, #fff 300deg 310deg, transparent 310deg 320deg, #fff 320deg 330deg, transparent 330deg 340deg, #fff 340deg 350deg, transparent 350deg 360deg)'
@@ -601,7 +603,7 @@ function TeamMemberCard({
             } else if (effectIndex === 1) {
               // Vertical Action Speed Lines
               return (
-                <div 
+                <div
                   className="absolute inset-0 opacity-[0.12] group-hover:opacity-[0.2] transition-opacity duration-300 pointer-events-none"
                   style={{
                     backgroundImage: 'repeating-linear-gradient(90deg, #fff, #fff 10px, transparent 10px, transparent 20px)'
@@ -611,7 +613,7 @@ function TeamMemberCard({
             } else if (effectIndex === 2) {
               // Slanted Action Stripes
               return (
-                <div 
+                <div
                   className="absolute inset-0 opacity-[0.14] group-hover:opacity-[0.22] transition-opacity duration-300 pointer-events-none"
                   style={{
                     backgroundImage: 'repeating-linear-gradient(45deg, #fff, #fff 12px, transparent 12px, transparent 24px)'
@@ -621,7 +623,7 @@ function TeamMemberCard({
             } else if (effectIndex === 3) {
               // Action Focus Rings
               return (
-                <div 
+                <div
                   className="absolute inset-0 opacity-[0.15] group-hover:opacity-[0.24] transition-opacity duration-300 pointer-events-none"
                   style={{
                     backgroundImage: 'radial-gradient(circle, transparent 40%, #fff 41%, #fff 45%, transparent 46%, transparent 70%, #fff 71%, #fff 75%, transparent 76%)'
@@ -631,7 +633,7 @@ function TeamMemberCard({
             } else {
               // Halftone Action Grid Dots
               return (
-                <div 
+                <div
                   className="absolute inset-0 opacity-[0.18] group-hover:opacity-[0.28] transition-opacity duration-300 pointer-events-none"
                   style={{
                     backgroundImage: 'radial-gradient(circle, #fff 2px, transparent 2px)',
@@ -944,19 +946,20 @@ export default function CreditsPage() {
       {/* Futuristic Background layers */}
       <AnimatedBackground />
 
-      <div className="w-full max-w-7xl mx-auto relative z-10">
+      {/* Navigation - Pinned to top-left of the screen */}
+      <div className="absolute top-6 left-6 md:left-8 z-50">
+        <Link
+          href="/"
+          className="group flex items-center gap-2 bg-white border-[3px] border-[#030404] text-[#030404] px-4 py-2 rounded-md font-mono text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-[3px_3px_0px_#030404] hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-[5px_5px_0px_#030404] active:translate-y-0 active:translate-x-0 active:shadow-[1px_1px_0px_#030404]"
+          id="credits-back-to-home"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform stroke-[3]" />
+          <span>Back to Home</span>
+        </Link>
+      </div>
 
-        {/* Navigation */}
-        <div className="mb-8 flex justify-start">
-          <Link
-            href="/"
-            className="group flex items-center gap-2 bg-white border border-[#030404]/10 hover:border-[#030404]/30 text-[#030404] px-5 py-2.5 rounded-md font-mono text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer shadow-[0_5px_15px_rgba(3,4,4,0.04)] active:scale-95"
-            id="credits-back-to-home"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to Home</span>
-          </Link>
-        </div>
+      <div className="w-full max-w-7xl mx-auto relative z-10">
+        <div className="h-10 md:h-6" />
 
         {/* ================================================================ */}
         {/* HERO HEADER SECTION */}
