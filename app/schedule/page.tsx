@@ -300,28 +300,7 @@ export default function SchedulePage() {
         </AnimatePresence>
       </div>
 
-      {/* CTA Footer Section */}
-      <section className="mt-20 text-center relative z-10">
-        <div className="border-comic bg-brand-ink text-brand-cloud max-w-2xl mx-auto p-6 rounded-xl shadow-comic -rotate-1 flex flex-col sm:flex-row gap-4 items-center justify-center">
-          <a
-            href="/schedule.pdf"
-            download
-            className="inline-flex items-center gap-2 border-2 border-brand-cloud bg-brand-orange text-brand-ink px-5 py-2.5 font-display text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#F5F1E5] hover:scale-[1.03] transition-transform active:scale-[0.98]"
-          >
-            <Download size={14} />
-            DOWNLOAD SCHEDULE
-          </a>
-          <a
-            href="https://drive.google.com/file/d/1ZYlhBmtHS6bgUEg6MdhIxg4ipDRmEkpj/view?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 border-2 border-brand-cloud bg-brand-cloud text-brand-ink px-5 py-2.5 font-display text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_0px_#F5F1E5] hover:scale-[1.03] transition-transform active:scale-[0.98]"
-          >
-            <Download size={14} />
-            DOWNLOAD RULES BOOK
-          </a>
-        </div>
-      </section>
+
     </div>
     </div>
   );

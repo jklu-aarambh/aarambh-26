@@ -6,7 +6,10 @@ import { Sparkles, Users, Mic, Laptop, Music, Gamepad2, Map } from 'lucide-react
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AboutSection from '@/components/about';
-
+import Preloader from '@/components/Preloader';
+import ScheduleTimeline from '@/components/ScheduleTimeline';
+import SpeakersCarousel from '@/components/SpeakersCarousel';
+import FaqAccordion from '@/components/FaqAccordion';
 interface TimeLeft {
   days: number;
   hours: number;
@@ -510,6 +513,7 @@ export default function Home() {
   const [loadingComplete, setLoadingComplete] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hypeCount, setHypeCount] = useState(1284);
 
   // Show loading screen animation on hard refresh, but skip on client-side navigation
   useEffect(() => {
@@ -604,10 +608,16 @@ export default function Home() {
       });
     }, 1000);
 
+    const hypeInterval = setInterval(() => {
+      if (Math.random() > 0.6) {
+        setHypeCount(prev => prev + Math.floor(Math.random() * 3) + 1);
+      }
+    }, 3500);
+
     // Global listener for screen clicks to synthesis clicks and pop comic dots
     const handleGlobalClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('a')) return;
+      if (target.tagName === 'INPUT' || target.tagName === 'BUTTON' || target.closest('a') || target.closest('.ticket-stub')) return;
       spawnParticles(e.clientX, e.clientY);
       playSynthSound('click');
     };
@@ -616,6 +626,7 @@ export default function Home() {
 
     return () => {
       clearInterval(interval);
+      clearInterval(hypeInterval);
       window.removeEventListener('click', handleGlobalClick);
     };
   }, []);
@@ -1055,6 +1066,10 @@ export default function Home() {
             ))}
           </div>
 
+
+
+
+
         </motion.div>
       </div>
 
@@ -1155,6 +1170,8 @@ export default function Home() {
             flex-direction: column;
             gap: 22px;
             animation: slideUp 24s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
           }
 
           .gl-slider-track-down {
@@ -1162,6 +1179,8 @@ export default function Home() {
             flex-direction: column;
             gap: 22px;
             animation: slideDown 24s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
           }
 
           @media (max-width: 1200px) {
@@ -1185,18 +1204,16 @@ export default function Home() {
             
             /* Position columns as horizontal rows */
             .gl-slider-column.left:not(.inner) {
-              top: 4% !important;
+              top: 8% !important;
             }
             .gl-slider-column.left.inner {
-              display: flex !important;
-              top: 17% !important;
+              display: none !important;
             }
             .gl-slider-column.right.inner {
-              display: flex !important;
-              bottom: 17% !important;
+              display: none !important;
             }
             .gl-slider-column.right:not(.inner) {
-              bottom: 4% !important;
+              bottom: 8% !important;
             }
 
             .gl-slider-img-container {
@@ -1496,11 +1513,19 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Unified Background Wrapper */}
+      <div className="w-full relative z-10 bg-[radial-gradient(rgba(3,4,4,0.15)_1.5px,transparent_1.5px),linear-gradient(135deg,#fce7f3_0%,#e0e7ff_50%,#f5f1e5_100%)] bg-[size:16px_16px,auto] border-t-4 border-brand-ink overflow-hidden">
+        
+        {/* Content Container */}
+        <div className="relative z-10">
+      
       {/* Aerial View Section */}
-      <section className="w-full relative z-10 bg-brand-cloud py-20 px-4 md:px-8 border-t-4 border-brand-ink">
+      <section className="w-full relative py-20 px-4 md:px-8">
         <div className="max-w-6xl mx-auto flex flex-col items-center text-center">
-          <div className="inline-block bg-brand-pink text-brand-cloud border-comic px-6 py-2 rounded-full mb-8 rotate-[-2deg] shadow-comic-sm">
-            <h2 className="font-display font-black text-2xl md:text-4xl uppercase tracking-wider">Aerial View of JKLU Campus</h2>
+          <div className="flex justify-center mb-16">
+            <div className="inline-block bg-brand-ink text-brand-cloud border-comic px-8 py-3 rounded-xl rotate-[1deg] shadow-comic">
+              <h2 className="font-display font-black text-3xl md:text-5xl uppercase tracking-wider">Aerial View of JKLU Campus</h2>
+            </div>
           </div>
           <div className="w-full relative border-comic rounded-2xl shadow-comic overflow-hidden bg-brand-ink">
              <Image 
@@ -1514,11 +1539,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Torn paper visual separation */}
-      <TornPaperDivider color="fill-brand-ink" flip={true} />
 
       {/* Events & Activities Section */}
-      <section className="w-full relative z-10 bg-brand-cloud py-20 px-4 md:px-8">
+      <section className="w-full relative py-20 px-4 md:px-8">
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="flex justify-center mb-16">
             <div className="inline-block bg-brand-ink text-brand-cloud border-comic px-8 py-3 rounded-xl rotate-[1deg] shadow-comic">
@@ -1580,7 +1603,7 @@ export default function Home() {
       </section>
 
       {/* Static Registration Section */}
-      <section className="py-24 px-6 w-full max-w-5xl pb-32 relative z-10 mx-auto">
+      <section className="py-24 px-6 w-full max-w-5xl pb-32 relative mx-auto">
         <div className="border-comic bg-brand-orange text-brand-ink shadow-comic-lg bg-halftone-black p-8 sm:p-12 md:p-16 rounded-xl text-center relative overflow-hidden">
           {/* Action starburst backing design */}
           <div className="absolute top-2 left-2 w-16 h-16 border-comic-thin bg-brand-pink text-brand-cloud font-display font-black text-[10px] uppercase tracking-tighter flex items-center justify-center rotate-[-12deg] shadow-comic-sm">
@@ -1610,6 +1633,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+        </div>
+      </div>
     </main>
   );
 }
