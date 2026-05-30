@@ -476,7 +476,7 @@ export default function GalleryLanding() {
 
 
         const diff = targetZOffsetRef.current - zOffsetRef.current
-        zOffsetRef.current += diff * 0.08
+        zOffsetRef.current += diff * 0.15
 
         if (Math.abs(zOffsetRef.current) > 60) {
           setShowScrollHint(false)
@@ -611,7 +611,7 @@ export default function GalleryLanding() {
       e.preventDefault()
       const touchY = e.touches[0].clientY
       const deltaY = touchStartY - touchY
-      targetZOffsetRef.current += deltaY * 1.2
+      targetZOffsetRef.current += deltaY * 0.8
       touchStartY = touchY
     }
 
