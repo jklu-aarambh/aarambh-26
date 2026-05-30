@@ -73,7 +73,7 @@ export default function Hero() {
             </div>
 
             <p className="text-brand-ink/80 font-bold text-xs sm:text-sm md:text-base leading-relaxed mb-5 sm:mb-6 uppercase">
-              “THE ULTIMATE INDUCTION EXPERIENCE TO KICKSTART YOUR COLLEGE VOYAGE! MEET THE CREATIVE COMMUNITY AND SHAPE THE FUTURE!”
+              “THE START OF A JOURNEY FILLED WITH DISCOVERY, CONNECTION, AND GROWTH. EXPLORE NEW POSSIBILITIES, BUILD LASTING FRIENDSHIPS, AND GO BEYOND EXPECTATIONS.”
             </p>
 
             <div className="flex gap-4 flex-wrap">

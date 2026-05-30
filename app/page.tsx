@@ -513,6 +513,7 @@ export default function Home() {
   const [loadingComplete, setLoadingComplete] = useState(true);
   const [isMounted, setIsMounted] = useState(false);
 
+
   // Show loading screen animation on hard refresh, but skip on client-side navigation
   useEffect(() => {
     setIsMounted(true);
@@ -1062,38 +1063,9 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Hype Meter */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="flex flex-col items-center mb-8 border-comic p-3 bg-brand-cloud shadow-comic-sm rotate-1 z-20"
-          >
-            <span className="font-display font-black text-[10px] uppercase tracking-widest text-brand-pink mb-1">LIVE REGISTRATIONS</span>
-            <div className="flex gap-1 bg-brand-ink p-1 rounded-sm">
-              {String(hypeCount).padStart(5, '0').split('').map((num, i) => (
-                <div key={i} className="w-6 h-8 md:w-8 md:h-10 bg-brand-cloud border-2 border-brand-ink flex items-center justify-center overflow-hidden">
-                   <motion.span 
-                      key={`${i}-${num}`}
-                      initial={{ y: -20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      className="font-display font-black text-xl md:text-2xl text-brand-ink"
-                   >
-                     {num}
-                   </motion.span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-4 z-20">
-            <Link href="/register" className="border-comic bg-brand-pink text-brand-cloud font-display font-black text-lg px-8 py-4 shadow-comic hover:translate-x-1 hover:translate-y-1 hover:shadow-comic-sm transition-all rotate-1 hover:rotate-2">
-              REGISTER NOW
-            </Link>
-            <Link href="/gallery" className="border-comic bg-brand-blue text-brand-cloud font-display font-black text-lg px-8 py-4 shadow-comic hover:translate-x-1 hover:translate-y-1 hover:shadow-comic-sm transition-all -rotate-1 hover:-rotate-2">
-              EXPLORE GALLERY
-            </Link>
-          </div>
+
+
 
         </motion.div>
       </div>
@@ -1653,6 +1625,5 @@ export default function Home() {
         </div>
       </section>
     </main>
-    </>
   );
 }
