@@ -28,7 +28,7 @@ const SPEAKERS_DATA = [
     role: 'Movement Facilitator',
     time: "Aarambh '26 · JKLU",
     image: 'https://aarambh.jklu.edu.in/assests/Images/Speakers/Manish%20Freeman%20.webp',
-    bio: "A joyful mover who turns play and dance into deep human connection. Manish brings energy, rhythm, and presence to every space he enters. His session at Aarambh '26 will get you on your feet and help you connect with fellow freshers in the most alive way possible.",
+    bio: "A joyful mover who turns play and dance into deep human connection. Manish brings energy, rhythm, and presence to every space he enters. His session at Aarambh '26 will get you on your feet and help you connect with fellow classmates in the most alive way possible.",
     expertise: ['Movement', 'Dance', 'Connection'],
     linkedin: 'https://www.linkedin.com/in/manish-freeman-a7ab34169/',
   },

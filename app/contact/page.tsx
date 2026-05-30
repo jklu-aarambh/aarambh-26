@@ -249,6 +249,89 @@ export default function ContactPage() {
             </div>
           </div>
 
+          {/* Discipline Committee Leaders */}
+          <div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-display font-black uppercase tracking-tight mb-2">
+                Discipline Leads
+              </h2>
+              <div className="w-16 h-1 bg-brand-orange mx-auto" />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              {[
+                { name: "Pratigya Bomb", email: "pratigyabomb@jklu.edu.in", bgColor: "bg-brand-orange text-brand-ink" },
+                { name: "Kartik Sharma", email: "kartiksharma2024@jklu.edu.in", bgColor: "bg-brand-pink text-white" }
+              ].map((head, index) => (
+                <div
+                  key={index}
+                  className="bg-white border-4 border-brand-ink rounded-lg shadow-[6px_6px_0px_0px_#030404] overflow-hidden flex flex-col h-full"
+                >
+                  <div className={`p-5 border-b-4 border-brand-ink ${head.bgColor}`}>
+                    <h3 className="font-display font-black uppercase text-base tracking-wider">
+                      {head.name}
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono font-black opacity-80 block mt-0.5">Discipline Team Leader</span>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-center font-mono text-xs font-bold space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 border-2 border-brand-ink bg-brand-cloud text-brand-ink flex items-center justify-center rounded shrink-0 shadow-comic-sm">
+                        <Mail size={14} />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-black text-brand-ink/40 uppercase block leading-none mb-1">Email</span>
+                        <a href={`mailto:${head.email}`} className="hover:text-brand-pink transition-colors break-all">
+                          {head.email}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Feedback Committee Leader */}
+          <div>
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-display font-black uppercase tracking-tight mb-2">
+                Feedback & Registration Lead
+              </h2>
+              <div className="w-16 h-1 bg-brand-pink mx-auto" />
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 max-w-sm mx-auto">
+              {[
+                { name: "Pulkit Dosi", email: "pulkitdosi@jklu.edu.in", bgColor: "bg-brand-ink text-white" }
+              ].map((head, index) => (
+                <div
+                  key={index}
+                  className="bg-white border-4 border-brand-ink rounded-lg shadow-[6px_6px_0px_0px_#030404] overflow-hidden flex flex-col h-full"
+                >
+                  <div className={`p-5 border-b-4 border-brand-ink ${head.bgColor}`}>
+                    <h3 className="font-display font-black uppercase text-base tracking-wider">
+                      {head.name}
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono font-black opacity-80 block mt-0.5">Feedback & Registration Lead</span>
+                  </div>
+                  <div className="p-6 flex-1 flex flex-col justify-center font-mono text-xs font-bold space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 border-2 border-brand-ink bg-brand-cloud text-brand-ink flex items-center justify-center rounded shrink-0 shadow-comic-sm">
+                        <Mail size={14} />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-black text-brand-ink/40 uppercase block leading-none mb-1">Email</span>
+                        <a href={`mailto:${head.email}`} className="hover:text-brand-pink transition-colors break-all">
+                          {head.email}
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
         </div>
 
       </div>

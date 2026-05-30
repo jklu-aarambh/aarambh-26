@@ -74,6 +74,7 @@ export default function Navbar() {
                 width={40}
                 height={40}
                 className="h-9 md:h-10 w-auto object-contain"
+                style={{ width: 'auto' }}
                 priority
                 loading="eager"
               />
@@ -89,6 +90,7 @@ export default function Navbar() {
                 width={130}
                 height={30}
                 className="h-7 md:h-8 w-auto object-contain"
+                style={{ width: 'auto' }}
                 priority
                 loading="eager"
               />

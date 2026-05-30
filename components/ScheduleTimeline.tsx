@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const scheduleData = {
   day1: [
-    { time: '09:00 AM', title: 'Arrival & Check-in', desc: 'Welcome to JKLU! Collect your freshers kit.', venue: 'Main Gate' },
+    { time: '09:00 AM', title: 'Arrival & Check-in', desc: 'Welcome to JKLU! Collect your welcome kit.', venue: 'Main Gate' },
     { time: '11:00 AM', title: 'The Grand Aarambh', desc: 'Inaugural ceremony and opening performances.', venue: 'Main Auditorium' },
     { time: '02:00 PM', title: 'Ice-Breaker Session', desc: 'Meet your squad and seniors.', venue: 'Student Lounge' },
     { time: '06:00 PM', title: 'DJ Night Kickoff', desc: 'Live music and food stalls.', venue: 'Open Air Theatre' },

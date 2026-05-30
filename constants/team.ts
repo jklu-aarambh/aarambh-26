@@ -16,7 +16,7 @@ export const TEAM_DATA = {
   vc: {
     name: "Vijaya Sekhar Chellaboina",
     designation: "Vice Chancellor",
-    photo: "/Team Photos/Admin and Student Affairs/VC Sir.jpg",
+    photo: "/Team Photos/Admin and Student Affairs/VC Sir.webp",
     department: "Administration",
     socials: {
       linkedin: "https://www.linkedin.com/in/vchellaboina/",
@@ -28,7 +28,7 @@ export const TEAM_DATA = {
     {
       name: "Deepak Sogani",
       designation: "Head - Student Affairs",
-      photo: "/Team Photos/Admin and Student Affairs/Deepak Sogani.jpg",
+      photo: "/Team Photos/Admin and Student Affairs/Deepak Sogani.webp",
       department: "Office of Student Affairs",
       socials: {
         linkedin: "https://www.linkedin.com/in/deepak-sogani/",
@@ -38,28 +38,28 @@ export const TEAM_DATA = {
     {
       name: "Anushka Pathak",
       designation: "Executive - Student Affairs",
-      photo: "/Team Photos/Admin and Student Affairs/Anushka Pathak.jpg",
+      photo: "/Team Photos/Admin and Student Affairs/Anushka Pathak.webp",
       department: "Office of Student Affairs",
       socials: {}
     },
     {
       name: "Vaibhav Topiwala",
       designation: "Sports Officer - Student Affairs",
-      photo: "/Team Photos/Admin and Student Affairs/Vaibhav Topiwala.png",
+      photo: "/Team Photos/Admin and Student Affairs/Vaibhav Topiwala.webp",
       department: "Office of Student Affairs",
       socials: {}
     },
     {
       name: "Mr. Gajendra",
       designation: "Sr. Sports Officer - Student Affairs",
-      photo: "/Team Photos/Admin and Student Affairs/Mr. Gajendra.jpeg",
+      photo: "/Team Photos/Admin and Student Affairs/Mr. Gajendra.webp",
       department: "Office of Student Affairs",
       socials: {}
     },
     {
       name: "Rajesh Joshi",
       designation: "Office Assistant - Student Affairs",
-      photo: "/Team Photos/Admin and Student Affairs/Rajesh Joshi.jpg",
+      photo: "/Team Photos/Admin and Student Affairs/Rajesh Joshi.webp",
       department: "Office of Student Affairs",
       socials: {}
     }

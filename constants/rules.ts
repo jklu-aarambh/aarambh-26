@@ -13,7 +13,7 @@ export const RULES_DATA: RuleItem[] = [
   {
     id: 1,
     title: "Campus Movement Restrictions",
-    description: "Exit from campus is strictly prohibited from the day of hostel check-in until the conclusion of AARAMBH-2025. All students must remain inside the secure campus boundaries at all times.",
+    description: "Exit from campus is strictly prohibited from the day of hostel check-in until the conclusion of AARAMBH-2026. All students must remain inside the secure campus boundaries at all times.",
     badge: "🚫",
     color: "bg-brand-pink",
     textColor: "text-brand-cloud",

@@ -129,27 +129,7 @@ export default function FAQPage() {
           !
         </motion.div>
 
-        {/* Floating Lightning Bolt ⚡ - Middle Right */}
-        <motion.div
-          animate={{
-            y: [0, -18, 0],
-            rotate: [0, 8, -8, 0],
-            scale: [1, 1.05, 0.95, 1],
-          }}
-          style={{
-            x: mousePos.x * -1.5,
-            y: mousePos.y * -1.5,
-          }}
-          transition={{
-            duration: 9,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: 1.5,
-          }}
-          className="absolute top-[45%] right-[6%] text-brand-orange/20 text-7xl font-black hidden md:block"
-        >
-          ⚡
-        </motion.div>
+
 
         {/* Floating Cross ✕ - Middle Left */}
         <motion.div
@@ -212,10 +192,10 @@ export default function FAQPage() {
                   className={`comic-interactive border-comic-thin px-4 py-2.5 rounded-lg font-display shrink-0 transition-all select-none flex items-center gap-2 ${
                     isActive
                       ? 'bg-brand-pink text-brand-cloud shadow-solid-ink scale-105 -rotate-2 font-black border-brand-ink'
-                      : `bg-white text-brand-ink shadow-comic-sm hover:${cat.color} font-bold ` + rotation
+                      : `bg-white text-brand-ink shadow-comic-sm ${cat.color} font-bold ` + rotation
                   }`}
                 >
-                  <span className="text-base">{cat.emoji}</span>
+                  {cat.emoji && <span className="text-base">{cat.emoji}</span>}
                   <span className="text-xs md:text-sm tracking-tighter uppercase">{cat.name}</span>
                 </button>
               );
@@ -250,20 +230,13 @@ export default function FAQPage() {
                         className="w-full text-left p-5 sm:p-6 flex gap-4 items-center justify-between font-display font-black text-brand-ink select-none cursor-pointer transition-colors hover:bg-brand-cloud/40"
                       >
                         <div className="flex flex-col gap-2.5 items-start">
-                          {/* Category Tag */}
-                          {categoryMeta && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider border-2 border-brand-ink bg-brand-cloud text-brand-ink shadow-[1.5px_1.5px_0px_0px_#030404]">
-                              <span>{categoryMeta.emoji}</span>
-                              <span>{categoryMeta.name}</span>
-                            </span>
-                          )}
                           <span className="text-base sm:text-lg leading-tight uppercase">
                             {faq.question}
                           </span>
                         </div>
                         <div
-                          className={`p-2 border-2 border-brand-ink rounded-lg shadow-comic-sm shrink-0 transition-transform duration-200 ${
-                            isOpen ? 'bg-brand-orange rotate-95' : 'bg-brand-pink'
+                          className={`p-2 border-2 border-brand-ink rounded-lg shadow-comic-sm shrink-0 transition-all duration-200 ${
+                            isOpen ? 'bg-brand-orange' : 'bg-brand-pink'
                           }`}
                         >
                           {isOpen ? <Minus size={16} className="text-brand-ink" /> : <Plus size={16} className="text-brand-cloud" />}
@@ -280,10 +253,7 @@ export default function FAQPage() {
                             transition={{ duration: 0.25, ease: 'easeInOut' }}
                           >
                             <div className="px-5 pb-6 sm:px-6 sm:pb-8 pt-0 border-t-2 border-dashed border-brand-ink/20">
-                              <div className="bg-brand-cloud/30 p-4 border-2 border-brand-ink/15 rounded-lg font-mono text-xs sm:text-sm font-bold uppercase leading-relaxed text-brand-ink/90 mt-4 relative">
-                                <div className="absolute -top-3 left-4 text-[9px] font-black uppercase px-2 py-0.5 bg-brand-pink text-brand-cloud border-comic-thin rounded rotate-1">
-                                  ANSWER CARD
-                                </div>
+                              <div className="bg-brand-cloud/30 p-4 border-2 border-brand-ink/15 rounded-lg font-display text-sm sm:text-base font-bold leading-relaxed text-brand-ink/90 mt-4 relative">
                                 {faq.answer}
                               </div>
                             </div>

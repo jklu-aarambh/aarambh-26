@@ -256,7 +256,7 @@ export default function SchedulePage() {
                       <MapPin size={16} className="text-brand-orange" /> {event.location}
                     </div>
                     <p className="text-brand-ink/80 text-xs sm:text-sm mt-8 max-w-md mx-auto leading-relaxed font-bold uppercase">
-                      WHOOSH! AN ENTIRE DAY DEDICATED TO OUTDOOR ADVENTURES, TEAM BUILDING, AND EXPLORING OFF-CAMPUS WONDERS WITH THE REST OF THE FRESHERS!
+                      WHOOSH! AN ENTIRE DAY DEDICATED TO OUTDOOR ADVENTURES, TEAM BUILDING, AND EXPLORING OFF-CAMPUS WONDERS WITH YOUR CLASSMATES!
                     </p>
                   </motion.div>
                 );

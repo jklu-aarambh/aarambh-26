@@ -970,6 +970,10 @@ export default function Home() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="text-center max-w-4xl flex flex-col items-center px-4 w-full"
           >
+          {/* Eyebrow text above Aarambh logo */}
+          <span className="font-display font-black text-xs sm:text-sm tracking-[0.3em] uppercase text-brand-ink/80 mt-10 sm:mt-18 mb-1 sm:mb-2 select-none text-center block">
+            JK Lakshmipat University Presents
+          </span>
 
           <div className="mb-3 sm:mb-8 select-none p-2 sm:p-3 max-w-full text-center flex justify-center w-full">
             {/* Centered Primary Logo */}
@@ -984,7 +988,7 @@ export default function Home() {
                       {/* Empty Container Logo (Outline version) */}
                       <Image 
                          src="/aarambh_logo_outline.png" 
-                         alt="" 
+                         alt="Aarambh '26 Logo Outline" 
                          fill 
                          className="object-contain" 
                          priority
@@ -998,7 +1002,7 @@ export default function Home() {
                       >
                         <Image 
                            src="/aarambh_logo_extruded.png" 
-                           alt="AARAMBH'26" 
+                           alt="Aarambh '26 Logo Extruded - The Signature Welcome Festival of JK Lakshmipat University" 
                            fill 
                            className="object-contain" 
                            priority 
@@ -1034,7 +1038,6 @@ export default function Home() {
             <p className="font-display font-black text-xs sm:text-base leading-relaxed tracking-wide uppercase text-center">
               <span className="text-brand-pink text-sm sm:text-lg">AARAMBH &mdash; THE BEGINNING OF SOMETHING GREATER. </span>
               Where strangers become friends and dreams find direction.
-              <span className="text-brand-orange"> This is not just an induction&mdash;this is your first step toward the future.</span>
             </p>
           </div>
 
@@ -1089,7 +1092,69 @@ export default function Home() {
       <section className="w-full z-10 bg-brand-ink">
         <AboutSection />
       </section>
-      {/* Memories of 2025 Gallery Showcase Section */}
+      {/* Events & Activities Section */}
+      <section className="w-full relative py-20 px-4 md:px-8 bg-brand-cloud border-t-4 border-brand-ink text-brand-ink z-10">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="flex justify-center mb-16">
+            <div className="inline-block bg-brand-ink text-brand-cloud border-comic px-8 py-3 rounded-xl rotate-[1deg] shadow-comic">
+              <h2 className="font-display font-black text-3xl md:text-5xl uppercase tracking-wider">Events & Activities</h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {/* Card 1 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-pink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
+                <Users size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Ice Breaking Session</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Get ready to break the ice and make squads! Fun games and chill vibes to help new students vibe and connect.</p>
+            </div>
+            {/* Card 2 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-blue rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
+                <Mic size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Expert Talks</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Real talk from industry pros and top academics — get inspired, motivated, and ready to boss up your journey.</p>
+            </div>
+            {/* Card 3 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-orange rounded-full border-comic flex items-center justify-center mb-6 text-brand-ink shadow-comic-sm">
+                <Laptop size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Workshops</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Engage in interactive sessions led by experts to kickstart your academic journey. Learn essential skills and gain insights.</p>
+            </div>
+            {/* Card 4 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-ink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
+                <Music size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Cultural Night</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Showcase your unique talents or enjoy captivating performances by fellow students and professionals in a vibrant evening.</p>
+            </div>
+            {/* Card 5 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-pink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
+                <Gamepad2 size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Sports & Games</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Get moving with fun activities and friendly matches that bring out your team spirit and good vibes.</p>
+            </div>
+            {/* Card 6 */}
+            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
+              <div className="w-14 h-14 bg-brand-blue rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
+                <Sparkles size={28} />
+              </div>
+              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Club Carnival</h3>
+              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Get introduced to JKLU's vibrant student clubs. Find your tribe, explore interest areas, and discover endless opportunities to co-create.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Memories of 2026 Gallery Showcase Section */}
       <section className="w-full relative z-10 bg-brand-cloud border-t-4 border-brand-ink text-brand-ink">
         <style dangerouslySetInnerHTML={{
           __html: `
@@ -1465,7 +1530,7 @@ export default function Home() {
                   textShadow: '2px 2px 0px #030404',
                   letterSpacing: '-0.02em'
                 }}>
-                  Memories of 2025
+                  Memories of 2026
                 </h2>
                 <p style={{
                   fontFamily: "var(--font-display)",
@@ -1474,7 +1539,7 @@ export default function Home() {
                   color: '#030404',
                   lineHeight: 1.6
                 }}>
-                  Experience the best moments of Aarambh 2025 with our curated memories.
+                  Experience the best moments of Aarambh 2026 with our curated memories.
                 </p>
               </motion.div>
             )}
@@ -1539,68 +1604,6 @@ export default function Home() {
         </div>
       </section>
 
-
-      {/* Events & Activities Section */}
-      <section className="w-full relative py-20 px-4 md:px-8">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="flex justify-center mb-16">
-            <div className="inline-block bg-brand-ink text-brand-cloud border-comic px-8 py-3 rounded-xl rotate-[1deg] shadow-comic">
-              <h2 className="font-display font-black text-3xl md:text-5xl uppercase tracking-wider">Events & Activities</h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {/* Card 1 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-pink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
-                <Users size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Ice Breaking Session</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Get ready to break the ice and make squads! Fun games and chill vibes to help freshers vibe and connect.</p>
-            </div>
-            {/* Card 2 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-blue rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
-                <Mic size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Expert Talks</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Real talk from industry pros and top academics — get inspired, motivated, and ready to boss up your journey.</p>
-            </div>
-            {/* Card 3 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-orange rounded-full border-comic flex items-center justify-center mb-6 text-brand-ink shadow-comic-sm">
-                <Laptop size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Workshops</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Engage in interactive sessions led by experts to kickstart your academic journey. Learn essential skills and gain insights.</p>
-            </div>
-            {/* Card 4 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-ink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
-                <Music size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Cultural Night</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Showcase your unique talents or enjoy captivating performances by fellow students and professionals in a vibrant evening.</p>
-            </div>
-            {/* Card 5 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-pink rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
-                <Gamepad2 size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Sports & Games</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Get moving with fun activities and friendly matches that bring out your team spirit and good vibes.</p>
-            </div>
-            {/* Card 6 */}
-            <div className="bg-brand-cloud border-comic p-6 rounded-xl shadow-comic hover:translate-y-[-4px] hover:shadow-comic-lg transition-all flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-brand-blue rounded-full border-comic flex items-center justify-center mb-6 text-brand-cloud shadow-comic-sm">
-                <Map size={28} />
-              </div>
-              <h3 className="font-display font-black text-xl mb-3 uppercase text-brand-ink">Campus Tour</h3>
-              <p className="font-sans font-bold text-sm leading-relaxed text-brand-ink/80">Explore the heart of our campus with guided tours. Discover key landmarks, student hubs, and your new second home.</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Static Registration Section */}
       <section className="py-24 px-6 w-full max-w-5xl pb-32 relative mx-auto">

@@ -266,7 +266,7 @@ export default function Registrations() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="font-adminHeading text-3xl font-black uppercase tracking-tight text-brand-ink">Registration Data</h1>
-          <p className="text-admin-muted font-bold text-xs uppercase tracking-wider mt-1">Student induction portal listings</p>
+          <p className="text-admin-muted font-bold text-xs uppercase tracking-wider mt-1">Student orientation portal listings</p>
         </div>
         <button 
           onClick={exportCSV}
