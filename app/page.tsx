@@ -1195,6 +1195,8 @@ export default function Home() {
             flex-direction: column;
             gap: 22px;
             animation: slideUp 24s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
           }
 
           .gl-slider-track-down {
@@ -1202,6 +1204,8 @@ export default function Home() {
             flex-direction: column;
             gap: 22px;
             animation: slideDown 24s linear infinite;
+            will-change: transform;
+            transform: translateZ(0);
           }
 
           @media (max-width: 1200px) {
@@ -1225,18 +1229,16 @@ export default function Home() {
             
             /* Position columns as horizontal rows */
             .gl-slider-column.left:not(.inner) {
-              top: 4% !important;
+              top: 8% !important;
             }
             .gl-slider-column.left.inner {
-              display: flex !important;
-              top: 17% !important;
+              display: none !important;
             }
             .gl-slider-column.right.inner {
-              display: flex !important;
-              bottom: 17% !important;
+              display: none !important;
             }
             .gl-slider-column.right:not(.inner) {
-              bottom: 4% !important;
+              bottom: 8% !important;
             }
 
             .gl-slider-img-container {
